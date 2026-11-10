@@ -5,6 +5,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [0.1.1]
+
+### Security
+
+- Pin `minimatch` to 11.0.5 via `overrides` (dev-only transitive dependency of `@vscode/vsce`) to fix GHSA-g3hv-75wg-m249 (denial of service via globparts amplification). Not part of the published runtime code.
+
 ## [0.1.0]
 
 ### Added

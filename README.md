@@ -1,6 +1,6 @@
 # graphtrail
 
-> **English summary** — graphtrail opens a LangGraph `SqliteSaver` checkpoint database (Python or JS) from the command line or from a read-only VS Code extension. It rebuilds each thread's timeline, shows state diffs and interrupts, and never imports or runs any code found in the file. Install: `npm pack && npm install -g ./graphtrail-0.1.0.tgz`.
+> **English summary** — graphtrail opens a LangGraph `SqliteSaver` checkpoint database (Python or JS) from the command line or from a read-only VS Code extension. It rebuilds each thread's timeline, shows state diffs and interrupts, and never imports or runs any code found in the file. Install: `npm pack && npm install -g ./graphtrail-0.1.1.tgz`.
 
 LangGraph 에이전트가 남긴 체크포인트 DB(SQLite 파일 하나)를 그래프 코드나 개발 서버 없이 열어서, 스레드별 실행 이력과 단계별 상태 차이를 보여 주는 읽기 전용 도구입니다.
 
@@ -36,24 +36,24 @@ Node.js 가 없다면 <https://nodejs.org/> 에서 설치합니다(macOS: `brew 
 git clone https://github.com/LeeGyeongPil/graphtrail.git
 cd graphtrail
 npm ci            # 개발 의존성 설치
-npm pack          # graphtrail-0.1.0.tgz 생성 (dist/ 는 이미 커밋되어 있어 빌드가 필요 없음)
-npm install -g ./graphtrail-0.1.0.tgz
+npm pack          # graphtrail-0.1.1.tgz 생성 (dist/ 는 이미 커밋되어 있어 빌드가 필요 없음)
+npm install -g ./graphtrail-0.1.1.tgz
 graphtrail --version
 ```
 
 ```text
-0.1.0
+0.1.1
 ```
 
-릴리스 페이지에 `graphtrail-0.1.0.tgz` 가 올라와 있으면 `npm install -g ./graphtrail-0.1.0.tgz` 한 줄이면 됩니다. 전역 설치가 싫다면 설치 없이 `node dist/cli.js <명령>` 으로도 같은 일을 합니다(예시의 `graphtrail` 을 `node dist/cli.js` 로 바꿔 실행하면 됩니다). `npm ci` 때 esbuild·@vscode/vsce-sign 설치 스크립트 경고가 보일 수 있으나 무시해도 됩니다(CLI 의 런타임 의존성은 `sql.js`, `@msgpack/msgpack` 두 개뿐입니다).
+릴리스 페이지에 `graphtrail-0.1.1.tgz` 가 올라와 있으면 `npm install -g ./graphtrail-0.1.1.tgz` 한 줄이면 됩니다. 전역 설치가 싫다면 설치 없이 `node dist/cli.js <명령>` 으로도 같은 일을 합니다(예시의 `graphtrail` 을 `node dist/cli.js` 로 바꿔 실행하면 됩니다). `npm ci` 때 esbuild·@vscode/vsce-sign 설치 스크립트 경고가 보일 수 있으나 무시해도 됩니다(CLI 의 런타임 의존성은 `sql.js`, `@msgpack/msgpack` 두 개뿐입니다).
 
 > **알려진 한계**: `npm install -g git+https://github.com/LeeGyeongPil/graphtrail.git` 처럼 git URL 로 **전역** 설치하면 npm 11.20.0 에서 실패했습니다(전역 폴더가 설치 후 지워지는 임시 클론으로의 심볼릭 링크가 되어 `graphtrail` 실행 파일이 끊어짐). 같은 git URL 을 프로젝트 로컬(`npm install git+https://...`)로 설치하거나 tarball 로 설치하면 동작합니다. npm 버전에 따라 다를 수 있습니다.
 
 ### VS Code 확장
 
 ```bash
-npm run vsix      # vscode/graphtrail-vscode-0.1.0.vsix 생성
-code --install-extension vscode/graphtrail-vscode-0.1.0.vsix
+npm run vsix      # vscode/graphtrail-vscode-0.1.1.vsix 생성
+code --install-extension vscode/graphtrail-vscode-0.1.1.vsix
 ```
 
 > **정직하게**: 확장은 `.vsix` 패키징, 매니페스트 검사, 타입 검사까지만 자동 테스트로 확인했습니다. **실제 VS Code 에서 설치해 열어 본 적은 없습니다.** 확장 호스트에서의 동작(커스텀 에디터 표시, 트리 뷰)은 검증되지 않았으니, 써 보고 문제가 있으면 이슈로 알려 주세요. 위 `code --install-extension` 명령도 직접 실행해 보지 못했습니다. 핵심 기능은 CLI 로 확인되어 있습니다.
