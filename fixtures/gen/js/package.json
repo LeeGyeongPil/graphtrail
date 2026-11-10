@@ -1,0 +1,15 @@
+{
+  "name": "graphtrail-fixture-gen-js",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Generates fixtures/js-agent.sqlite with LangGraph.js (scripted mock model, no API key).",
+  "type": "module",
+  "scripts": {
+    "make": "npm rebuild better-sqlite3 && node make_fixture.ts ../../js-agent.sqlite"
+  },
+  "dependencies": {
+    "@langchain/core": "1.3.6",
+    "@langchain/langgraph": "1.7.3",
+    "@langchain/langgraph-checkpoint-sqlite": "1.1.0"
+  }
+}

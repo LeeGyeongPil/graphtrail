@@ -1,0 +1,653 @@
+{
+  "schemaVersion": 1,
+  "thread": {
+    "threadId": "t1",
+    "ns": "",
+    "status": "done",
+    "writer": "python"
+  },
+  "timeline": [
+    {
+      "checkpointId": "1f1dcba9-9a43-6fde-bfff-34881a18b274",
+      "parentId": null,
+      "step": -1,
+      "source": "input",
+      "ts": "2026-11-10T03:55:42.490205+00:00",
+      "changedKeys": [
+        "messages"
+      ],
+      "nodes": [],
+      "tasks": [
+        {
+          "taskId": "d11de4b8-2e4d-4f4e-829f-7f544d2ad937",
+          "node": null,
+          "channels": [
+            "messages"
+          ]
+        }
+      ],
+      "toolCalls": [],
+      "toolResults": [],
+      "interrupts": [],
+      "errors": []
+    },
+    {
+      "checkpointId": "1f1dcba9-9a4b-6694-8000-fd2122f34aaa",
+      "parentId": "1f1dcba9-9a43-6fde-bfff-34881a18b274",
+      "step": 0,
+      "source": "loop",
+      "ts": "2026-11-10T03:55:42.493243+00:00",
+      "changedKeys": [
+        "messages",
+        "plan",
+        "budget",
+        "started",
+        "timeout",
+        "run_id",
+        "tags",
+        "level"
+      ],
+      "nodes": [
+        "agent"
+      ],
+      "tasks": [
+        {
+          "taskId": "3f194a0a-ef18-1d25-a227-984c7aa64810",
+          "node": "agent",
+          "channels": [
+            "messages",
+            "plan",
+            "budget",
+            "started",
+            "timeout",
+            "run_id",
+            "tags",
+            "level"
+          ]
+        }
+      ],
+      "toolCalls": [
+        {
+          "id": "call_1",
+          "name": "add",
+          "args": {
+            "a": 2,
+            "b": 3
+          }
+        }
+      ],
+      "toolResults": [],
+      "interrupts": [],
+      "errors": []
+    },
+    {
+      "checkpointId": "1f1dcba9-9a4c-68b4-8001-522b7aa2e261",
+      "parentId": "1f1dcba9-9a4b-6694-8000-fd2122f34aaa",
+      "step": 1,
+      "source": "loop",
+      "ts": "2026-11-10T03:55:42.493709+00:00",
+      "changedKeys": [
+        "messages"
+      ],
+      "nodes": [
+        "tools"
+      ],
+      "tasks": [
+        {
+          "taskId": "7812d48d-07ac-dbf4-213e-a85aa3b16d4d",
+          "node": "tools",
+          "channels": [
+            "messages"
+          ]
+        }
+      ],
+      "toolCalls": [],
+      "toolResults": [
+        {
+          "toolCallId": "call_1",
+          "content": "5"
+        }
+      ],
+      "interrupts": [],
+      "errors": []
+    },
+    {
+      "checkpointId": "1f1dcba9-9a4d-699e-8002-db7f74124b2f",
+      "parentId": "1f1dcba9-9a4c-68b4-8001-522b7aa2e261",
+      "step": 2,
+      "source": "loop",
+      "ts": "2026-11-10T03:55:42.494143+00:00",
+      "changedKeys": [
+        "messages",
+        "budget"
+      ],
+      "nodes": [
+        "agent"
+      ],
+      "tasks": [
+        {
+          "taskId": "47c7fb63-f34e-69f7-3b84-9add7793c483",
+          "node": "agent",
+          "channels": [
+            "messages",
+            "plan",
+            "budget",
+            "started",
+            "timeout",
+            "run_id",
+            "tags",
+            "level"
+          ]
+        }
+      ],
+      "toolCalls": [],
+      "toolResults": [],
+      "interrupts": [],
+      "errors": []
+    },
+    {
+      "checkpointId": "1f1dcba9-9a4e-69ca-8003-002942409fab",
+      "parentId": "1f1dcba9-9a4d-699e-8002-db7f74124b2f",
+      "step": 3,
+      "source": "loop",
+      "ts": "2026-11-10T03:55:42.494555+00:00",
+      "changedKeys": [
+        "approved"
+      ],
+      "nodes": [
+        "approve"
+      ],
+      "tasks": [
+        {
+          "taskId": "22dd22e2-794c-61d4-99bd-6281d249348d",
+          "node": "approve",
+          "channels": [
+            "approved"
+          ]
+        }
+      ],
+      "toolCalls": [],
+      "toolResults": [],
+      "interrupts": [
+        {
+          "$type": "langgraph.types.Interrupt",
+          "$ext": "ctor_kw_args",
+          "value": {
+            "value": {
+              "question": "approve final answer?"
+            },
+            "id": "7648f651056bc165497ef448339398f4",
+            "response_schema": null
+          }
+        }
+      ],
+      "errors": []
+    },
+    {
+      "checkpointId": "1f1dcba9-9a54-6f3c-8004-3ffbe48d625e",
+      "parentId": "1f1dcba9-9a4e-69ca-8003-002942409fab",
+      "step": 4,
+      "source": "loop",
+      "ts": "2026-11-10T03:55:42.497152+00:00",
+      "changedKeys": [],
+      "nodes": [],
+      "tasks": [],
+      "toolCalls": [],
+      "toolResults": [],
+      "interrupts": [],
+      "errors": []
+    }
+  ],
+  "latest": {
+    "threadId": "t1",
+    "ns": "",
+    "checkpointId": "1f1dcba9-9a54-6f3c-8004-3ffbe48d625e",
+    "parentId": "1f1dcba9-9a4e-69ca-8003-002942409fab",
+    "step": 4,
+    "source": "loop",
+    "ts": "2026-11-10T03:55:42.497152+00:00",
+    "version": 4,
+    "channelValues": {
+      "messages": [
+        {
+          "$type": "langchain_core.messages.human.HumanMessage",
+          "$ext": "pydantic_v2",
+          "value": {
+            "content": "what is 2+3?",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "human",
+            "name": null,
+            "id": "m-human-1"
+          },
+          "method": "model_validate_json"
+        },
+        {
+          "$type": "langchain_core.messages.ai.AIMessage",
+          "$ext": "pydantic_v2",
+          "value": {
+            "content": "",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "ai",
+            "name": null,
+            "id": "m-ai-1",
+            "tool_calls": [
+              {
+                "name": "add",
+                "args": {
+                  "a": 2,
+                  "b": 3
+                },
+                "id": "call_1",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": null
+          },
+          "method": "model_validate_json"
+        },
+        {
+          "$type": "langchain_core.messages.tool.ToolMessage",
+          "$ext": "pydantic_v2",
+          "value": {
+            "content": "5",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": null,
+            "id": "m-tool-1",
+            "tool_call_id": "call_1",
+            "artifact": null,
+            "status": "success"
+          },
+          "method": "model_validate_json"
+        },
+        {
+          "$type": "langchain_core.messages.ai.AIMessage",
+          "$ext": "pydantic_v2",
+          "value": {
+            "content": "The answer is 5.",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "ai",
+            "name": null,
+            "id": "m-ai-2",
+            "tool_calls": [],
+            "invalid_tool_calls": [],
+            "usage_metadata": null
+          },
+          "method": "model_validate_json"
+        }
+      ],
+      "plan": {
+        "$type": "demo_types.Plan",
+        "$ext": "pydantic_v2",
+        "value": {
+          "goal": "add numbers",
+          "steps": [
+            "call tool",
+            "answer"
+          ]
+        },
+        "method": "model_validate_json"
+      },
+      "budget": {
+        "$type": "demo_types.Budget",
+        "$ext": "ctor_kw_args",
+        "value": {
+          "used": 3,
+          "limit": 10
+        }
+      },
+      "started": {
+        "$type": "datetime.datetime",
+        "$ext": "method_single_arg",
+        "value": "2026-11-10T00:00:00+00:00",
+        "method": "fromisoformat"
+      },
+      "timeout": {
+        "$type": "datetime.timedelta",
+        "$ext": "ctor_pos_args",
+        "value": [
+          0,
+          30,
+          0
+        ]
+      },
+      "run_id": {
+        "$type": "uuid.UUID",
+        "$ext": "ctor_single_arg",
+        "value": "12345678123456781234567812345678"
+      },
+      "tags": {
+        "$type": "builtins.set",
+        "$ext": "ctor_single_arg",
+        "value": [
+          "practice",
+          "demo"
+        ]
+      },
+      "level": {
+        "$type": "demo_types.Level",
+        "$ext": "ctor_single_arg",
+        "value": "low"
+      },
+      "approved": true
+    },
+    "metadata": {
+      "source": "loop",
+      "step": 4,
+      "parents": {}
+    },
+    "writes": []
+  },
+  "diffs": [
+    {
+      "from": {
+        "step": -1,
+        "checkpointId": "1f1dcba9-9a43-6fde-bfff-34881a18b274"
+      },
+      "to": {
+        "step": 0,
+        "checkpointId": "1f1dcba9-9a4b-6694-8000-fd2122f34aaa"
+      },
+      "changes": [
+        {
+          "key": "messages",
+          "kind": "added"
+        }
+      ],
+      "messages": {
+        "added": [
+          {
+            "$type": "langchain_core.messages.human.HumanMessage",
+            "$ext": "pydantic_v2",
+            "value": {
+              "content": "what is 2+3?",
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "type": "human",
+              "name": null,
+              "id": "m-human-1"
+            },
+            "method": "model_validate_json"
+          }
+        ],
+        "addedIds": [
+          "m-human-1"
+        ],
+        "removedIds": []
+      },
+      "toolPairs": []
+    },
+    {
+      "from": {
+        "step": 0,
+        "checkpointId": "1f1dcba9-9a4b-6694-8000-fd2122f34aaa"
+      },
+      "to": {
+        "step": 1,
+        "checkpointId": "1f1dcba9-9a4c-68b4-8001-522b7aa2e261"
+      },
+      "changes": [
+        {
+          "key": "budget",
+          "kind": "added",
+          "after": {
+            "$type": "demo_types.Budget",
+            "$ext": "ctor_kw_args",
+            "value": {
+              "used": 1,
+              "limit": 10
+            }
+          }
+        },
+        {
+          "key": "level",
+          "kind": "added",
+          "after": {
+            "$type": "demo_types.Level",
+            "$ext": "ctor_single_arg",
+            "value": "low"
+          }
+        },
+        {
+          "key": "messages",
+          "kind": "changed"
+        },
+        {
+          "key": "plan",
+          "kind": "added",
+          "after": {
+            "$type": "demo_types.Plan",
+            "$ext": "pydantic_v2",
+            "value": {
+              "goal": "add numbers",
+              "steps": [
+                "call tool",
+                "answer"
+              ]
+            },
+            "method": "model_validate_json"
+          }
+        },
+        {
+          "key": "run_id",
+          "kind": "added",
+          "after": {
+            "$type": "uuid.UUID",
+            "$ext": "ctor_single_arg",
+            "value": "12345678123456781234567812345678"
+          }
+        },
+        {
+          "key": "started",
+          "kind": "added",
+          "after": {
+            "$type": "datetime.datetime",
+            "$ext": "method_single_arg",
+            "value": "2026-11-10T00:00:00+00:00",
+            "method": "fromisoformat"
+          }
+        },
+        {
+          "key": "tags",
+          "kind": "added",
+          "after": {
+            "$type": "builtins.set",
+            "$ext": "ctor_single_arg",
+            "value": [
+              "practice",
+              "demo"
+            ]
+          }
+        },
+        {
+          "key": "timeout",
+          "kind": "added",
+          "after": {
+            "$type": "datetime.timedelta",
+            "$ext": "ctor_pos_args",
+            "value": [
+              0,
+              30,
+              0
+            ]
+          }
+        }
+      ],
+      "messages": {
+        "added": [
+          {
+            "$type": "langchain_core.messages.ai.AIMessage",
+            "$ext": "pydantic_v2",
+            "value": {
+              "content": "",
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "type": "ai",
+              "name": null,
+              "id": "m-ai-1",
+              "tool_calls": [
+                {
+                  "name": "add",
+                  "args": {
+                    "a": 2,
+                    "b": 3
+                  },
+                  "id": "call_1",
+                  "type": "tool_call"
+                }
+              ],
+              "invalid_tool_calls": [],
+              "usage_metadata": null
+            },
+            "method": "model_validate_json"
+          }
+        ],
+        "addedIds": [
+          "m-ai-1"
+        ],
+        "removedIds": []
+      },
+      "toolPairs": []
+    },
+    {
+      "from": {
+        "step": 1,
+        "checkpointId": "1f1dcba9-9a4c-68b4-8001-522b7aa2e261"
+      },
+      "to": {
+        "step": 2,
+        "checkpointId": "1f1dcba9-9a4d-699e-8002-db7f74124b2f"
+      },
+      "changes": [
+        {
+          "key": "messages",
+          "kind": "changed"
+        }
+      ],
+      "messages": {
+        "added": [
+          {
+            "$type": "langchain_core.messages.tool.ToolMessage",
+            "$ext": "pydantic_v2",
+            "value": {
+              "content": "5",
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "type": "tool",
+              "name": null,
+              "id": "m-tool-1",
+              "tool_call_id": "call_1",
+              "artifact": null,
+              "status": "success"
+            },
+            "method": "model_validate_json"
+          }
+        ],
+        "addedIds": [
+          "m-tool-1"
+        ],
+        "removedIds": []
+      },
+      "toolPairs": [
+        {
+          "id": "call_1",
+          "name": "add",
+          "args": {
+            "a": 2,
+            "b": 3
+          },
+          "result": "5"
+        }
+      ]
+    },
+    {
+      "from": {
+        "step": 2,
+        "checkpointId": "1f1dcba9-9a4d-699e-8002-db7f74124b2f"
+      },
+      "to": {
+        "step": 3,
+        "checkpointId": "1f1dcba9-9a4e-69ca-8003-002942409fab"
+      },
+      "changes": [
+        {
+          "key": "budget",
+          "kind": "changed",
+          "before": {
+            "$type": "demo_types.Budget",
+            "$ext": "ctor_kw_args",
+            "value": {
+              "used": 1,
+              "limit": 10
+            }
+          },
+          "after": {
+            "$type": "demo_types.Budget",
+            "$ext": "ctor_kw_args",
+            "value": {
+              "used": 3,
+              "limit": 10
+            }
+          }
+        },
+        {
+          "key": "messages",
+          "kind": "changed"
+        }
+      ],
+      "messages": {
+        "added": [
+          {
+            "$type": "langchain_core.messages.ai.AIMessage",
+            "$ext": "pydantic_v2",
+            "value": {
+              "content": "The answer is 5.",
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "type": "ai",
+              "name": null,
+              "id": "m-ai-2",
+              "tool_calls": [],
+              "invalid_tool_calls": [],
+              "usage_metadata": null
+            },
+            "method": "model_validate_json"
+          }
+        ],
+        "addedIds": [
+          "m-ai-2"
+        ],
+        "removedIds": []
+      },
+      "toolPairs": []
+    },
+    {
+      "from": {
+        "step": 3,
+        "checkpointId": "1f1dcba9-9a4e-69ca-8003-002942409fab"
+      },
+      "to": {
+        "step": 4,
+        "checkpointId": "1f1dcba9-9a54-6f3c-8004-3ffbe48d625e"
+      },
+      "changes": [
+        {
+          "key": "approved",
+          "kind": "added",
+          "after": true
+        }
+      ],
+      "messages": {
+        "added": [],
+        "addedIds": [],
+        "removedIds": []
+      },
+      "toolPairs": []
+    }
+  ]
+}
