@@ -1,0 +1,6 @@
+src/**
+build.mjs
+package-vsix.mjs
+tsconfig.json
+*.vsix
+.vscodeignore
