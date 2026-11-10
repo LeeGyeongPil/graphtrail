@@ -2,7 +2,7 @@
   "name": "graphtrail-vscode",
   "displayName": "graphtrail - LangGraph checkpoint viewer",
   "description": "Open a LangGraph SqliteSaver database read-only: thread timeline, state diffs and tool calls, without running any code.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "leegyeongpil",
   "license": "MIT",
   "repository": {
