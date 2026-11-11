@@ -14,6 +14,10 @@ This is the format graphtrail reads (checked against `langgraph-checkpoint-sqlit
 - **namespace**: `checkpoint_ns` is empty for the root graph. A subgraph writes its own chain under a name such as `sub:<task id>`.
 - **where is the node name?** Not stored. The writes under a checkpoint belong to the tasks that ran next. graphtrail estimates the node from `versions_seen` of the following checkpoint (the node whose seen versions moved). The output says "estimated".
 
+## Write-ahead log (`-wal`)
+
+LangGraph's `SqliteSaver` turns on WAL mode, so while an app is running its newest committed rows can sit in `<db>-wal` and not yet in the main file. graphtrail reads the `-wal` file next to the database and applies only its **committed** frames to the in-memory copy: the header magic and checksum must be valid (the magic's lowest bit selects big- or little-endian checksums), each frame's salts must match the header, and the cumulative checksum must continue unbroken. Frames after the last commit frame (a transaction still in progress) or after a broken checksum are dropped. The `-shm` file is not needed and not read. If the `-wal` is missing, empty, from an older generation or unreadable, only the main file is shown (in the CLI and library a damaged or unreadable `-wal` adds a `warning:` line; the VS Code extension ignores it silently and does not display warnings). Nothing is written, checkpointed or deleted.
+
 ## Blob encodings (`type` column)
 
 | `type` | written by | how graphtrail reads it |

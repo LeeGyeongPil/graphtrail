@@ -2,7 +2,7 @@
 
 **English** | [한국어](README.ko.md)
 
-graphtrail opens a LangGraph `SqliteSaver` checkpoint database (Python or JS, a single SQLite file) from the command line or from a read-only VS Code extension, without the graph code or a dev server. It rebuilds each thread's timeline, shows state diffs between steps and interrupts, and never imports or runs any code found in the file. Install: `npm pack && npm install -g ./graphtrail-0.1.2.tgz`.
+graphtrail opens a LangGraph `SqliteSaver` checkpoint database (Python or JS, a single SQLite file) from the command line or from a read-only VS Code extension, without the graph code or a dev server. It rebuilds each thread's timeline, shows state diffs between steps and interrupts, and never imports or runs any code found in the file. Install: `npm pack && npm install -g ./graphtrail-0.1.3.tgz`.
 
 ![Timeline table of the HTML report](docs/images/01-hero.png)
 *The timeline of a report made with `graphtrail export --format html`. The steps, estimated nodes, and changed keys of the sample thread t1 come together in one table.*
@@ -38,24 +38,24 @@ The recommended method is the **tarball install**. It has not been uploaded to t
 git clone https://github.com/LeeGyeongPil/graphtrail.git
 cd graphtrail
 npm ci            # Install dev dependencies
-npm pack          # Creates graphtrail-0.1.2.tgz (dist/ is already committed, so no build is needed)
-npm install -g ./graphtrail-0.1.2.tgz
+npm pack          # Creates graphtrail-0.1.3.tgz (dist/ is already committed, so no build is needed)
+npm install -g ./graphtrail-0.1.3.tgz
 graphtrail --version
 ```
 
 ```text
-0.1.2
+0.1.3
 ```
 
-If `graphtrail-0.1.2.tgz` is on the releases page, the single line `npm install -g ./graphtrail-0.1.2.tgz` is enough. If you don't like a global install, `node dist/cli.js <command>` does the same thing without installing (replace `graphtrail` in the examples with `node dist/cli.js`). During `npm ci` you may see install-script warnings from esbuild and @vscode/vsce-sign, but you can ignore them (the CLI's runtime dependencies are just two: `sql.js` and `@msgpack/msgpack`).
+If `graphtrail-0.1.3.tgz` is on the releases page, the single line `npm install -g ./graphtrail-0.1.3.tgz` is enough. If you don't like a global install, `node dist/cli.js <command>` does the same thing without installing (replace `graphtrail` in the examples with `node dist/cli.js`). During `npm ci` you may see install-script warnings from esbuild and @vscode/vsce-sign, but you can ignore them (the CLI's runtime dependencies are just two: `sql.js` and `@msgpack/msgpack`).
 
 > **Known limitation**: A **global** install by git URL such as `npm install -g git+https://github.com/LeeGyeongPil/graphtrail.git` failed on npm 11.20.0 (the global folder becomes a symlink to a temporary clone that is deleted after install, so the `graphtrail` executable breaks). Installing the same git URL project-locally (`npm install git+https://...`) or installing by tarball works. It may differ by npm version.
 
 ### VS Code extension
 
 ```bash
-npm run vsix      # Creates vscode/graphtrail-vscode-0.1.2.vsix
-code --install-extension vscode/graphtrail-vscode-0.1.2.vsix
+npm run vsix      # Creates vscode/graphtrail-vscode-0.1.3.vsix
+code --install-extension vscode/graphtrail-vscode-0.1.3.vsix
 ```
 
 > **To be honest**: For the extension, only `.vsix` packaging, the manifest check, and the type check were confirmed by automated tests. **We have never installed and opened it in a real VS Code.** Behavior in the extension host (the custom editor display, the tree view) is unverified, so if you try it and hit a problem, please tell us in an issue. We have not run the `code --install-extension` command above ourselves either. The core features are confirmed through the CLI.
@@ -197,12 +197,12 @@ flowchart LR
   D --> G["VS Code extension"]
 ```
 
-1. **Copy into memory and open**: SQLite is the WASM build (sql.js); it reads the file and opens it only in memory. The original file does not change (a test confirms this with a hash).
+1. **Copy into memory and open**: SQLite is the WASM build (sql.js); it reads the file and opens it only in memory. If a `<db>-wal` file sits next to it, the committed changes in it that are not yet checkpointed are applied to that in-memory copy too. The original file and `-wal` are only read, `-shm` is not touched, and none of them change (a test confirms this with a hash).
 2. **Decoder**: Python stores "module, class, arguments" in msgpack extension types 0 to 7. Reading with the library imports that module and calls the constructor, so a file of unknown origin is dangerous. graphtrail outputs this information only as `{"$type": ..., "$ext": ..., "value": ...}`. For unknown extension types and `pickle`, it does not interpret the content and only reports the size. Basis for the danger: a JSON-mode deserialization case, [CVE-2025-64439](https://nvd.nist.gov/vuln/detail/CVE-2025-64439), and a msgpack deserialization case, [CVE-2026-28277](https://github.com/advisories/GHSA-g48c-2wqr-h844) (research record as of 2026-11-10).
 3. **Timeline**: Sorts by following the `parent_checkpoint_id` chain, and estimates nodes from `versions_seen`.
 4. **Shells**: The CLI and the VS Code extension are thin layers that call the same core.
 
-Permissions and network: it does not connect to the network and reads only the DB given as an argument. It writes no files besides its output. For storage format details, see [docs/format.md](docs/format.md).
+Permissions and network: it does not connect to the network and reads only the DB given as an argument (and its `-wal` file, if any). It writes no files besides its output. For storage format details, see [docs/format.md](docs/format.md).
 
 ## Troubleshooting
 
@@ -213,8 +213,23 @@ Permissions and network: it does not connect to the network and reads only the D
 | The node column is `-` (or several, such as `agent, tools, approve`, in the last row of an interrupted thread) | It is the last step or the waiting node is unknown. A thread stopped by an interrupt can show several estimated nodes | Normal. Node names are not stored and are only estimated |
 | Some history is missing in a thread with a fork | Only the chain of the newest leaf is shown | A warning is printed. The fork tree is not implemented yet |
 | Some values appear only as a `delta_snapshot` marker | A graph that uses a delta channel (msgpack extension type 7) | Reconstructing the values is not implemented yet. Only the marker is shown |
+| The newest checkpoints of a running app are missing (a `<db>-wal` file is next to the DB) | `SqliteSaver` uses WAL mode, so the latest records are in `-wal` until SQLite checkpoints them | Since 0.1.3 graphtrail reads the committed records in `-wal` (read-only) and shows them, with a `warning:` line in the CLI. The original stays untouched |
 | A Postgres store cannot be opened | Only SQLite is supported | A task for a later version |
 | `graphtrail: command not found` after `npm install -g git+...` | The git global install problem in npm 11.20.0 | Install by tarball |
+
+To check the `-wal` handling yourself, run it on the bundled fixture (the main file has only `t1`; the rest is in the `-wal` next to it). The `warning:` line goes to stderr, the exit code is 0:
+
+```text
+$ graphtrail threads fixtures/wal-agent.sqlite
+warning: included 1 committed transaction(s) from fixtures/wal-agent.sqlite-wal that are not yet checkpointed
+thread  ns                                        checkpoints  last step  status       writer
+t1      (root)                                    6            4          done         python
+t2      (root)                                    5            3          interrupted  python
+t3      (root)                                    4            2          done         python
+t3      sub:f376348e-4d08-6260-9f1a-21c7c814ebe3  4            2          done         python
+```
+
+Known limit: the VS Code extension also applies the `-wal`, but it does not show the `warning:` line (the CLI does).
 
 ## Development and contributing
 

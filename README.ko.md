@@ -38,24 +38,24 @@ Node.js 가 없다면 <https://nodejs.org/> 에서 설치합니다(macOS: `brew 
 git clone https://github.com/LeeGyeongPil/graphtrail.git
 cd graphtrail
 npm ci            # 개발 의존성 설치
-npm pack          # graphtrail-0.1.2.tgz 생성 (dist/ 는 이미 커밋되어 있어 빌드가 필요 없음)
-npm install -g ./graphtrail-0.1.2.tgz
+npm pack          # graphtrail-0.1.3.tgz 생성 (dist/ 는 이미 커밋되어 있어 빌드가 필요 없음)
+npm install -g ./graphtrail-0.1.3.tgz
 graphtrail --version
 ```
 
 ```text
-0.1.2
+0.1.3
 ```
 
-릴리스 페이지에 `graphtrail-0.1.2.tgz` 가 올라와 있으면 `npm install -g ./graphtrail-0.1.2.tgz` 한 줄이면 됩니다. 전역 설치가 싫다면 설치 없이 `node dist/cli.js <명령>` 으로도 같은 일을 합니다(예시의 `graphtrail` 을 `node dist/cli.js` 로 바꿔 실행하면 됩니다). `npm ci` 때 esbuild·@vscode/vsce-sign 설치 스크립트 경고가 보일 수 있으나 무시해도 됩니다(CLI 의 런타임 의존성은 `sql.js`, `@msgpack/msgpack` 두 개뿐입니다).
+릴리스 페이지에 `graphtrail-0.1.3.tgz` 가 올라와 있으면 `npm install -g ./graphtrail-0.1.3.tgz` 한 줄이면 됩니다. 전역 설치가 싫다면 설치 없이 `node dist/cli.js <명령>` 으로도 같은 일을 합니다(예시의 `graphtrail` 을 `node dist/cli.js` 로 바꿔 실행하면 됩니다). `npm ci` 때 esbuild·@vscode/vsce-sign 설치 스크립트 경고가 보일 수 있으나 무시해도 됩니다(CLI 의 런타임 의존성은 `sql.js`, `@msgpack/msgpack` 두 개뿐입니다).
 
 > **알려진 한계**: `npm install -g git+https://github.com/LeeGyeongPil/graphtrail.git` 처럼 git URL 로 **전역** 설치하면 npm 11.20.0 에서 실패했습니다(전역 폴더가 설치 후 지워지는 임시 클론으로의 심볼릭 링크가 되어 `graphtrail` 실행 파일이 끊어짐). 같은 git URL 을 프로젝트 로컬(`npm install git+https://...`)로 설치하거나 tarball 로 설치하면 동작합니다. npm 버전에 따라 다를 수 있습니다.
 
 ### VS Code 확장
 
 ```bash
-npm run vsix      # vscode/graphtrail-vscode-0.1.2.vsix 생성
-code --install-extension vscode/graphtrail-vscode-0.1.2.vsix
+npm run vsix      # vscode/graphtrail-vscode-0.1.3.vsix 생성
+code --install-extension vscode/graphtrail-vscode-0.1.3.vsix
 ```
 
 > **정직하게**: 확장은 `.vsix` 패키징, 매니페스트 검사, 타입 검사까지만 자동 테스트로 확인했습니다. **실제 VS Code 에서 설치해 열어 본 적은 없습니다.** 확장 호스트에서의 동작(커스텀 에디터 표시, 트리 뷰)은 검증되지 않았으니, 써 보고 문제가 있으면 이슈로 알려 주세요. 위 `code --install-extension` 명령도 직접 실행해 보지 못했습니다. 핵심 기능은 CLI 로 확인되어 있습니다.
@@ -197,12 +197,12 @@ flowchart LR
   D --> G[VS Code 확장]
 ```
 
-1. **메모리로 복사해 열기**: SQLite 는 WASM 판(sql.js)으로, 파일을 읽어 메모리에서만 엽니다. 원본 파일은 바뀌지 않습니다(테스트가 해시로 확인).
+1. **메모리로 복사해 열기**: SQLite 는 WASM 판(sql.js)으로, 파일을 읽어 메모리에서만 엽니다. 옆에 `<db>-wal` 파일이 있으면 아직 체크포인트되지 않은 그 커밋분도 메모리 사본에 반영합니다. 원본 파일과 `-wal` 은 읽기만 하고 `-shm` 은 건드리지 않으며, 모두 바뀌지 않습니다(테스트가 해시로 확인).
 2. **디코더**: Python 은 msgpack 확장 타입 0~7 에 "모듈·클래스·인자"를 담아 저장합니다. 라이브러리로 읽으면 그 모듈을 불러와 생성자를 호출하므로, 출처를 모르는 파일은 위험합니다. graphtrail 은 이 정보를 `{"$type": ..., "$ext": ..., "value": ...}` 로만 출력합니다. 알 수 없는 확장 타입과 `pickle` 은 내용을 해석하지 않고 크기만 보고합니다. 위험의 근거: JSON 모드 역직렬화 사례 [CVE-2025-64439](https://nvd.nist.gov/vuln/detail/CVE-2025-64439), msgpack 역직렬화 사례 [CVE-2026-28277](https://github.com/advisories/GHSA-g48c-2wqr-h844) (확인 2026-11-10 기준 조사 기록).
 3. **타임라인**: `parent_checkpoint_id` 사슬을 따라 정렬하고, 노드는 `versions_seen` 으로 추정합니다.
 4. **껍데기**: CLI 와 VS Code 확장은 같은 코어를 부르는 얇은 층입니다.
 
-권한과 네트워크: 네트워크에 접속하지 않고, 파일은 인자로 준 DB 만 읽습니다. 출력 외에 쓰는 파일이 없습니다. 저장 형식 상세는 [docs/format.md](docs/format.md).
+권한과 네트워크: 네트워크에 접속하지 않고, 파일은 인자로 준 DB(와 옆의 `-wal`)만 읽습니다. 출력 외에 쓰는 파일이 없습니다. 저장 형식 상세는 [docs/format.md](docs/format.md).
 
 ## 자주 겪는 문제
 
@@ -213,8 +213,23 @@ flowchart LR
 | 노드 열이 `-` (또는 interrupted 스레드 마지막 행에 `agent, tools, approve` 처럼 여러 개) | 마지막 단계이거나 대기 노드를 알 수 없음. interrupt 로 멈춘 스레드는 추정 노드가 여러 개 보일 수 있음 | 정상입니다. 노드 이름은 저장되지 않고 추정만 합니다 |
 | 분기(fork)가 있는 스레드에서 일부 이력이 안 보임 | 가장 새 잎의 사슬만 보여 줌 | 경고가 출력됩니다. 분기 트리는 아직 미구현 |
 | 일부 값이 `delta_snapshot` 표식으로만 보임 | 델타 채널(msgpack 확장 타입 7)을 쓰는 그래프 | 값 재구성은 아직 미구현. 표식만 보입니다 |
+| 실행 중인 앱의 최신 체크포인트가 안 보임(DB 옆에 `<db>-wal` 파일이 있음) | `SqliteSaver` 는 WAL 모드라 SQLite 가 체크포인트하기 전까지 최신 기록이 `-wal` 에 있음 | 0.1.3 부터 `-wal` 의 커밋된 기록을 읽기만 해서 반영하고 CLI 는 `warning:` 한 줄을 알립니다. 원본은 그대로 |
 | Postgres 저장소를 열 수 없음 | SQLite 만 지원 | 이후 버전 과제 |
 | `npm install -g git+...` 뒤 `graphtrail: command not found` | npm 11.20.0 의 git 전역 설치 문제 | tarball 로 설치 |
+
+`-wal` 처리를 직접 확인하려면 저장소에 든 픽스처로 실행해 보세요(본 파일에는 `t1` 만 있고 나머지는 옆의 `-wal` 에 있습니다). `warning:` 줄은 stderr 로 나가고 종료 코드는 0 입니다.
+
+```text
+$ graphtrail threads fixtures/wal-agent.sqlite
+warning: included 1 committed transaction(s) from fixtures/wal-agent.sqlite-wal that are not yet checkpointed
+thread  ns                                        checkpoints  last step  status       writer
+t1      (root)                                    6            4          done         python
+t2      (root)                                    5            3          interrupted  python
+t3      (root)                                    4            2          done         python
+t3      sub:f376348e-4d08-6260-9f1a-21c7c814ebe3  4            2          done         python
+```
+
+알려진 한계: VS Code 확장도 `-wal` 을 반영하지만 `warning:` 줄은 화면에 보여 주지 않습니다(CLI 는 보여 줍니다).
 
 ## 개발·기여
 

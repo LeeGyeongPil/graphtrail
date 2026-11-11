@@ -5,6 +5,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [0.1.3]
+
+### Fixed
+
+- Checkpoints of a running app that were committed but not yet checkpointed into the main file (they live in `<db>-wal`, because `SqliteSaver` uses WAL mode) were silently missing: `threads` showed an empty or outdated list, or a wrong "missing table" error, with exit code 0 and no warning. graphtrail now applies the committed frames of `<db>-wal` to its in-memory copy (read-only; the database, `-wal` and `-shm` are never written, checkpointed, created or deleted) and prints a `warning:` line when it did. An unusable `-wal` falls back to the main file with a warning. The VS Code extension applies the `-wal` too, but does not display the warning (known limit), and `openCheckpointDb(bytes, { wal })` accepts the `-wal` bytes.
+
 ## [0.1.2]
 
 ### Changed
