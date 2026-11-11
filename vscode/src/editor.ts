@@ -61,9 +61,17 @@ export class CheckpointEditorProvider implements vscode.CustomReadonlyEditorProv
     panel.webview.options = { enableScripts: false };
     try {
       // The file is read once into memory; the original is never opened for writing.
+      // A running app keeps its newest committed rows in "<db>-wal". Read it first, then the main file (a
+      // checkpoint in between is harmless this way). Both are only read; a missing or unreadable -wal is ignored.
+      let wal: Uint8Array | undefined;
+      try {
+        wal = await vscode.workspace.fs.readFile(document.uri.with({ path: `${document.uri.path}-wal` }));
+      } catch {
+        wal = undefined;
+      }
       const bytes = await vscode.workspace.fs.readFile(document.uri);
       const wasm = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(this.extensionUri, "dist", "sql-wasm.wasm"));
-      const db = await openCheckpointDb(bytes, { wasmBinary: wasm });
+      const db = await openCheckpointDb(bytes, wal ? { wasmBinary: wasm, wal } : { wasmBinary: wasm });
       const open: OpenDb = { uri: document.uri, db, panel };
       const first = db.listThreads()[0];
       this.registry.setCurrent(open);

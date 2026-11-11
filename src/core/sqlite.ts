@@ -6,12 +6,18 @@ import { readFile } from "node:fs/promises";
 import initSqlJs from "sql.js";
 import type { Database, SqlJsStatic } from "sql.js";
 import { NotCheckpointDbError, NotFoundError } from "./model.ts";
+import { mergeWal } from "./wal.ts";
 
 export interface OpenOptions {
   /** Provide the sql-wasm.wasm bytes when the default lookup (next to sql.js) does not work, e.g. in a bundle. */
   wasmBinary?: Uint8Array;
   /** Files larger than this (bytes) produce a warning. Default 200 MB. */
   warnBytes?: number;
+  /**
+   * Bytes of the `<db>-wal` file that belongs to the database bytes passed in (byte input only).
+   * Its committed frames are applied to the in-memory copy. For a path input the `-wal` file is found automatically.
+   */
+  wal?: Uint8Array;
 }
 
 export type Row = Record<string, unknown>;
@@ -50,8 +56,25 @@ export class SqliteReader {
   }
 
   static async open(input: string | Uint8Array, options: OpenOptions = {}): Promise<SqliteReader> {
+    const warnings: string[] = [];
     let bytes: Uint8Array;
+    let wal: Uint8Array | undefined = options.wal;
+    // Name used in messages: the "-wal" path next to the database, or a generic phrase for byte input.
+    const walName = typeof input === "string" ? `${input}-wal` : "the WAL";
+    const dbName = typeof input === "string" ? input : "the database";
     if (typeof input === "string") {
+      // Read the -wal first and the main file second: if a checkpoint runs in between, the main file is
+      // newer than the log we hold, which is safe (the log's pages are then already in the main file).
+      if (wal === undefined) {
+        try {
+          wal = await readFile(`${input}-wal`);
+        } catch (error) {
+          // No -wal is the normal case. Any other failure (permissions, a directory...) must not stop the read.
+          if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+            warnings.push(`${walName} could not be used; showing only data already checkpointed into ${dbName}`);
+          }
+        }
+      }
       try {
         bytes = await readFile(input);
       } catch (error) {
@@ -63,7 +86,17 @@ export class SqliteReader {
     if (new TextDecoder().decode(bytes.subarray(0, 16)) !== SQLITE_MAGIC) {
       throw new NotCheckpointDbError("not a LangGraph checkpoint database (not a SQLite file)");
     }
-    const warnings: string[] = [];
+    if (wal !== undefined) {
+      const merged = mergeWal(bytes, wal);
+      if (merged.kind === "invalid") {
+        warnings.push(`${walName} could not be used; showing only data already checkpointed into ${dbName}`);
+      } else if (merged.kind === "applied") {
+        bytes = merged.bytes;
+        if (merged.changed) {
+          warnings.push(`included ${merged.transactions} committed transaction(s) from ${walName} that are not yet checkpointed`);
+        }
+      }
+    }
     const limit = options.warnBytes ?? DEFAULT_WARN_BYTES;
     if (bytes.length > limit) {
       warnings.push(

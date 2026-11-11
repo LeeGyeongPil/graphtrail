@@ -6,6 +6,8 @@ import { test } from "node:test";
 import { cli, fixture, ROOT } from "./helpers.ts";
 
 const sha = (path: string): string => createHash("sha256").update(readFileSync(path)).digest("hex");
+/** Hash of the file, or "absent" when it does not exist: reading must not create -wal or -shm files either. */
+const shaOrAbsent = (path: string): string => (existsSync(path) ? sha(path) : "absent");
 
 function sourceFiles(dir: string): string[] {
   if (!existsSync(dir)) return [];
@@ -17,9 +19,11 @@ function sourceFiles(dir: string): string[] {
 }
 
 test("db file unchanged", () => {
-  const files = ["py-agent.sqlite", "js-agent.sqlite", "not-langgraph.sqlite"].map(fixture);
-  const before = files.map(sha);
-  for (const f of files.slice(0, 2)) {
+  const files = ["py-agent.sqlite", "js-agent.sqlite", "not-langgraph.sqlite", "wal-agent.sqlite"].map(fixture);
+  // The main files plus their -wal and -shm companions (wal-agent.sqlite has a -wal, the others have none).
+  const watched = files.flatMap((f) => [f, `${f}-wal`, `${f}-shm`]);
+  const before = watched.map(shaOrAbsent);
+  for (const f of [files[0], files[1], files[3]] as string[]) {
     cli("threads", f);
     cli("timeline", f, "--thread", "t1");
     cli("show", f, "--thread", "t1", "--json");
@@ -27,7 +31,7 @@ test("db file unchanged", () => {
     cli("export", f, "--thread", "t1", "--format", "html");
   }
   cli("threads", fixture("not-langgraph.sqlite"));
-  assert.deepEqual(files.map(sha), before);
+  assert.deepEqual(watched.map(shaOrAbsent), before);
 });
 
 test("no code execution primitives in src", () => {
@@ -53,7 +57,7 @@ test("no code execution primitives in src", () => {
 });
 
 test("fixtures contain no absolute paths", () => {
-  for (const name of ["py-agent.sqlite", "js-agent.sqlite", "not-langgraph.sqlite", "golden/t1.md", "golden/t1.json"]) {
+  for (const name of ["py-agent.sqlite", "js-agent.sqlite", "not-langgraph.sqlite", "wal-agent.sqlite", "wal-agent.sqlite-wal", "golden/t1.md", "golden/t1.json"]) {
     const text = readFileSync(fixture(name)).toString("latin1");
     for (const needle of ["/Us" + "ers/", "/ho" + "me/", "C:\\", "/pri" + "vate/"]) {
       assert.ok(!text.includes(needle), `${name} contains ${needle}`);

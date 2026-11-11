@@ -3,6 +3,11 @@ export interface OpenOptions {
     wasmBinary?: Uint8Array;
     /** Files larger than this (bytes) produce a warning. Default 200 MB. */
     warnBytes?: number;
+    /**
+     * Bytes of the `<db>-wal` file that belongs to the database bytes passed in (byte input only).
+     * Its committed frames are applied to the in-memory copy. For a path input the `-wal` file is found automatically.
+     */
+    wal?: Uint8Array;
 }
 export type Row = Record<string, unknown>;
 export declare class SqliteReader {
