@@ -1,5 +1,7 @@
 # graphtrail
 
+**한국어** | [English](README.en.md)
+
 > **English summary** — graphtrail opens a LangGraph `SqliteSaver` checkpoint database (Python or JS) from the command line or from a read-only VS Code extension. It rebuilds each thread's timeline, shows state diffs and interrupts, and never imports or runs any code found in the file. Install: `npm pack && npm install -g ./graphtrail-0.1.2.tgz`.
 
 LangGraph 에이전트가 남긴 체크포인트 DB(SQLite 파일 하나)를 그래프 코드나 개발 서버 없이 열어서, 스레드별 실행 이력과 단계별 상태 차이를 보여 주는 읽기 전용 도구입니다.
