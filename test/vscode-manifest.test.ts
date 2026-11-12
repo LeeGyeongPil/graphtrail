@@ -40,5 +40,7 @@ test("npm run vsix builds a package that bundles the wasm", () => {
   assert.equal(listing.status, 0, "unzip is needed to inspect the package");
   assert.match(listing.stdout, /extension\/dist\/sql-wasm\.wasm/);
   assert.match(listing.stdout, /extension\/dist\/extension\.js/);
+  assert.match(listing.stdout, /extension\/package\.nls\.json/);
+  assert.match(listing.stdout, /extension\/package\.nls\.ko\.json/);
   assert.ok(!/extension\/src\//.test(listing.stdout), "sources are not shipped");
 });

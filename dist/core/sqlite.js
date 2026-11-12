@@ -6,6 +6,7 @@ import { readFile } from "node:fs/promises";
 import initSqlJs from "sql.js";
 import { NotCheckpointDbError, NotFoundError } from "./model.js";
 import { mergeWal } from "./wal.js";
+import { t } from "./i18n.js";
 const SQLITE_MAGIC = "SQLite format 3\u0000";
 const DEFAULT_WARN_BYTES = 200 * 1024 * 1024;
 const REQUIRED_COLUMNS = {
@@ -28,18 +29,21 @@ export class SqliteReader {
     /** True when the optional `task_path` column exists in `writes` (newer LangGraph versions). */
     hasTaskPath;
     db;
-    constructor(db, warnings) {
+    lang;
+    constructor(db, warnings, lang) {
+        this.lang = lang;
         this.db = db;
         this.warnings = warnings;
         this.hasTaskPath = this.columns("writes").includes("task_path");
     }
     static async open(input, options = {}) {
         const warnings = [];
+        const lang = options.lang ?? "en";
         let bytes;
         let wal = options.wal;
         // Name used in messages: the "-wal" path next to the database, or a generic phrase for byte input.
-        const walName = typeof input === "string" ? `${input}-wal` : "the WAL";
-        const dbName = typeof input === "string" ? input : "the database";
+        const walName = typeof input === "string" ? `${input}-wal` : t(lang, "walNameGeneric");
+        const dbName = typeof input === "string" ? input : t(lang, "dbNameGeneric");
         if (typeof input === "string") {
             // Read the -wal first and the main file second: if a checkpoint runs in between, the main file is
             // newer than the log we hold, which is safe (the log's pages are then already in the main file).
@@ -50,7 +54,7 @@ export class SqliteReader {
                 catch (error) {
                     // No -wal is the normal case. Any other failure (permissions, a directory...) must not stop the read.
                     if (error.code !== "ENOENT") {
-                        warnings.push(`${walName} could not be used; showing only data already checkpointed into ${dbName}`);
+                        warnings.push(t(lang, "walUnusable", { walName, dbName }));
                     }
                 }
             }
@@ -58,30 +62,30 @@ export class SqliteReader {
                 bytes = await readFile(input);
             }
             catch (error) {
-                throw new NotFoundError(`cannot read database file "${input}": ${error.message}`);
+                throw new NotFoundError(t(lang, "cannotRead", { path: input, detail: error.message }));
             }
         }
         else {
             bytes = input;
         }
         if (new TextDecoder().decode(bytes.subarray(0, 16)) !== SQLITE_MAGIC) {
-            throw new NotCheckpointDbError("not a LangGraph checkpoint database (not a SQLite file)");
+            throw new NotCheckpointDbError(t(lang, "notDbNotSqlite"));
         }
         if (wal !== undefined) {
             const merged = mergeWal(bytes, wal);
             if (merged.kind === "invalid") {
-                warnings.push(`${walName} could not be used; showing only data already checkpointed into ${dbName}`);
+                warnings.push(t(lang, "walUnusable", { walName, dbName }));
             }
             else if (merged.kind === "applied") {
                 bytes = merged.bytes;
                 if (merged.changed) {
-                    warnings.push(`included ${merged.transactions} committed transaction(s) from ${walName} that are not yet checkpointed`);
+                    warnings.push(t(lang, "walApplied", { n: merged.transactions, walName }));
                 }
             }
         }
         const limit = options.warnBytes ?? DEFAULT_WARN_BYTES;
         if (bytes.length > limit) {
-            warnings.push(`database is ${Math.round(bytes.length / 1024 / 1024)} MB and is loaded fully into memory; use --thread to limit the work`);
+            warnings.push(t(lang, "bigDb", { mb: Math.round(bytes.length / 1024 / 1024) }));
         }
         const SQL = await loadSql(options.wasmBinary);
         let db;
@@ -89,9 +93,9 @@ export class SqliteReader {
             db = new SQL.Database(bytes);
         }
         catch (error) {
-            throw new NotCheckpointDbError(`not a LangGraph checkpoint database (${error.message})`);
+            throw new NotCheckpointDbError(t(lang, "notDbDetail", { detail: error.message }));
         }
-        const reader = new SqliteReader(db, warnings);
+        const reader = new SqliteReader(db, warnings, lang);
         reader.validate();
         return reader;
     }
@@ -108,16 +112,16 @@ export class SqliteReader {
             tables = this.tables();
         }
         catch (error) {
-            throw new NotCheckpointDbError(`not a LangGraph checkpoint database (${error.message})`);
+            throw new NotCheckpointDbError(t(this.lang, "notDbDetail", { detail: error.message }));
         }
         for (const [table, required] of Object.entries(REQUIRED_COLUMNS)) {
             if (!tables.includes(table)) {
-                throw new NotCheckpointDbError(`not a LangGraph checkpoint database (missing table: ${table})`);
+                throw new NotCheckpointDbError(t(this.lang, "notDbMissingTable", { table }));
             }
             const have = this.columns(table);
             const missing = required.filter((c) => !have.includes(c));
             if (missing.length > 0) {
-                throw new NotCheckpointDbError(`not a LangGraph checkpoint database (table ${table} is missing column: ${missing.join(", ")})`);
+                throw new NotCheckpointDbError(t(this.lang, "notDbMissingColumn", { table, columns: missing.join(", ") }));
             }
         }
     }

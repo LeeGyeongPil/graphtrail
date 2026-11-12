@@ -1,6 +1,7 @@
 /** Tree view: threads of the focused database, each with its checkpoints. */
 import * as vscode from "vscode";
 import type { Registry } from "./editor.ts";
+import { t } from "../../src/core/i18n.ts";
 
 interface Node {
   threadId: string;
@@ -22,18 +23,18 @@ export class ThreadTree implements vscode.TreeDataProvider<Node> {
   getTreeItem(node: Node): vscode.TreeItem {
     const isCheckpoint = node.step !== undefined;
     const label = isCheckpoint
-      ? `step ${node.step}`
+      ? t(this.registry.lang, "treeStep", { step: node.step ?? 0 })
       : `${node.threadId}${node.ns ? ` [${node.ns}]` : ""}`;
     const item = new vscode.TreeItem(
       label,
       isCheckpoint ? vscode.TreeItemCollapsibleState.None : vscode.TreeItemCollapsibleState.Collapsed,
     );
-    if (isCheckpoint) item.description = node.nodes?.join(", ") || "input";
+    if (isCheckpoint) item.description = node.nodes?.join(", ") || t(this.registry.lang, "treeInput");
     else {
       const summary = this.registry.current?.db.listThreads().find((t) => t.threadId === node.threadId && t.ns === node.ns);
-      item.description = summary ? `${summary.status}, ${summary.checkpoints} checkpoints` : "";
+      item.description = summary ? t(this.registry.lang, "treeThreadSummary", { status: summary.status, n: summary.checkpoints }) : "";
     }
-    item.command = { command: "graphtrail.showThread", title: "Show thread", arguments: [node.threadId, node.ns] };
+    item.command = { command: "graphtrail.showThread", title: t(this.registry.lang, "treeShowThread"), arguments: [node.threadId, node.ns] };
     return item;
   }
 

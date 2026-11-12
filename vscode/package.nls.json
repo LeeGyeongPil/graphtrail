@@ -1,0 +1,13 @@
+{
+  "displayName": "graphtrail - LangGraph checkpoint viewer",
+  "description": "Open a LangGraph SqliteSaver database read-only: thread timeline, state diffs and tool calls, without running any code.",
+  "command.openDatabase.title": "graphtrail: Open Checkpoint Database",
+  "command.showThread.title": "graphtrail: Show Thread",
+  "view.threads.name": "graphtrail threads",
+  "customEditor.displayName": "graphtrail checkpoint viewer",
+  "config.title": "graphtrail",
+  "config.language.description": "Display language of graphtrail. \"auto\" follows the VS Code display language (Korean or English).",
+  "config.language.auto": "Follow the VS Code display language",
+  "config.language.en": "English",
+  "config.language.ko": "Korean"
+}

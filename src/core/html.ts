@@ -3,6 +3,8 @@
  * Every value from the database goes through `esc`; there is no script and no external resource.
  */
 import { compact, describeChanges } from "./report.ts";
+import type { RenderOptions } from "./report.ts";
+import { t } from "./i18n.ts";
 import type { Report } from "./model.ts";
 
 export function esc(text: string): string {
@@ -26,8 +28,9 @@ code,pre{font:12px ui-monospace,monospace}
 .muted{color:#666}
 `;
 
-export function renderHtml(report: Report): string {
-  const t = report.thread;
+export function renderHtml(report: Report, options: RenderOptions = {}): string {
+  const lang = options.lang ?? "en";
+  const th = report.thread;
   const rows = report.timeline
     .map((e) => {
       const interrupt = e.interrupts.length > 0 ? esc(compact(e.interrupts, 120)) : "";
@@ -37,31 +40,34 @@ export function renderHtml(report: Report): string {
     .join("\n");
   const steps = report.diffs
     .map((d) => {
-      const items = describeChanges(d).map((i) => `<li>${esc(i)}</li>`);
-      return `<h3>step ${d.from.step} -&gt; ${d.to.step}</h3><ul>${items.join("")}</ul>`;
+      const items = describeChanges(d, lang).map((i) => `<li>${esc(i)}</li>`);
+      return `<h3>${esc(t(lang, "stepRange", { from: d.from.step, to: d.to.step }))}</h3><ul>${items.join("")}</ul>`;
     })
     .join("\n");
-  const ns = t.ns ? ` <span class="muted">(ns ${esc(t.ns)})</span>` : "";
+  const head = (["colStep", "colSource", "colNodes", "colChanged", "colInterrupt"] as const)
+    .map((k) => `<th>${esc(t(lang, k))}</th>`)
+    .join("");
+  const ns = th.ns ? ` <span class="muted">(ns ${esc(th.ns)})</span>` : "";
   return `<!doctype html>
-<html lang="en">
+<html lang="${lang}">
 <head>
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="${CSP}">
-<title>graphtrail: ${esc(t.threadId)}</title>
+<title>${esc(t(lang, "htmlTitle", { thread: th.threadId }))}</title>
 <style>${STYLE}</style>
 </head>
 <body>
-<h1>graphtrail: thread ${esc(t.threadId)}${ns}</h1>
-<p>status <b>${esc(t.status)}</b>, written by ${esc(t.writer)}, ${report.timeline.length} checkpoints, schema ${report.schemaVersion}</p>
-<h2>Timeline</h2>
-<p class="muted">Each row is the step that runs from that checkpoint: nodes are estimated from versions_seen (the database does not store node names), changed keys are the state difference that step produced.</p>
+<h1>${esc(t(lang, "htmlHeading", { thread: th.threadId, ns: "\u0000" })).replace("\u0000", ns)}</h1>
+<p>${esc(t(lang, "htmlSummary", { status: "\u0001", writer: th.writer, n: report.timeline.length, v: report.schemaVersion })).replace("\u0001", `<b>${esc(th.status)}</b>`)}</p>
+<h2>${esc(t(lang, "timelineHeading"))}</h2>
+<p class="muted">${esc(t(lang, "timelineNote"))}</p>
 <div id="timeline">
 <table>
-<tr><th>step</th><th>source</th><th>nodes (estimated)</th><th>changed keys</th><th>interrupt</th></tr>
+<tr>${head}</tr>
 ${rows}
 </table>
 </div>
-<h2>Steps</h2>
+<h2>${esc(t(lang, "stepsHeading"))}</h2>
 <div id="steps">
 ${steps}
 </div>

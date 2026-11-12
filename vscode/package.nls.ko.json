@@ -1,0 +1,13 @@
+{
+  "displayName": "graphtrail - LangGraph 체크포인트 뷰어",
+  "description": "LangGraph SqliteSaver 데이터베이스를 읽기 전용으로 엽니다. 코드를 실행하지 않고 스레드 타임라인, 상태 차이, 도구 호출을 보여 줍니다.",
+  "command.openDatabase.title": "graphtrail: 체크포인트 데이터베이스 열기",
+  "command.showThread.title": "graphtrail: 스레드 보기",
+  "view.threads.name": "graphtrail 스레드",
+  "customEditor.displayName": "graphtrail 체크포인트 뷰어",
+  "config.title": "graphtrail",
+  "config.language.description": "graphtrail 표시 언어입니다. \"auto\"는 VS Code 표시 언어(한국어 또는 영어)를 따릅니다.",
+  "config.language.auto": "VS Code 표시 언어를 따릅니다",
+  "config.language.en": "영어",
+  "config.language.ko": "한국어"
+}

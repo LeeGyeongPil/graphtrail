@@ -1,8 +1,11 @@
+import type { Lang } from "./i18n.ts";
 import type { DecodedCheckpoint, ThreadSummary, TimelineEntry } from "./model.ts";
 import type { OpenOptions } from "./sqlite.ts";
 /** Read-only view of one LangGraph SqliteSaver database. */
 export declare class CheckpointDb {
     readonly warnings: string[];
+    /** Language of error messages raised after opening; may be changed at any time (e.g. a UI language switch). */
+    lang: Lang;
     private readonly reader;
     private readonly cache;
     private constructor();

@@ -1,8 +1,8 @@
 {
   "name": "graphtrail-vscode",
-  "displayName": "graphtrail - LangGraph checkpoint viewer",
-  "description": "Open a LangGraph SqliteSaver database read-only: thread timeline, state diffs and tool calls, without running any code.",
-  "version": "0.1.3",
+  "displayName": "%displayName%",
+  "description": "%description%",
+  "version": "0.2.0",
   "publisher": "leegyeongpil",
   "license": "MIT",
   "repository": {
@@ -23,10 +23,22 @@
     "virtualWorkspaces": true
   },
   "contributes": {
+    "configuration": {
+      "title": "%config.title%",
+      "properties": {
+        "graphtrail.language": {
+          "type": "string",
+          "enum": ["auto", "en", "ko"],
+          "enumDescriptions": ["%config.language.auto%", "%config.language.en%", "%config.language.ko%"],
+          "default": "auto",
+          "description": "%config.language.description%"
+        }
+      }
+    },
     "customEditors": [
       {
         "viewType": "graphtrail.checkpointDb",
-        "displayName": "graphtrail checkpoint viewer",
+        "displayName": "%customEditor.displayName%",
         "selector": [
           { "filenamePattern": "*.sqlite" },
           { "filenamePattern": "*.sqlite3" },
@@ -39,7 +51,7 @@
       "explorer": [
         {
           "id": "graphtrail.threads",
-          "name": "graphtrail threads",
+          "name": "%view.threads.name%",
           "when": "graphtrail.hasDatabase"
         }
       ]
@@ -47,11 +59,11 @@
     "commands": [
       {
         "command": "graphtrail.openDatabase",
-        "title": "graphtrail: Open Checkpoint Database"
+        "title": "%command.openDatabase.title%"
       },
       {
         "command": "graphtrail.showThread",
-        "title": "graphtrail: Show Thread"
+        "title": "%command.showThread.title%"
       }
     ],
     "menus": {

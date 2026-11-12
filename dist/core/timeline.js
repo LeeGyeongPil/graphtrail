@@ -9,6 +9,7 @@
 import { decodeMetadata, decodeTyped } from "./decode.js";
 import { extractToolCalls, extractToolResult, isInternalChannel, stable } from "./diff.js";
 import { NotFoundError } from "./model.js";
+import { t } from "./i18n.js";
 import { SqliteReader } from "./sqlite.js";
 /** The "null task" LangGraph uses for resume values; it is not a node run. */
 const NULL_TASK_ID = "00000000-0000-0000-0000-000000000000";
@@ -36,15 +37,18 @@ function flatten(value) {
 /** Read-only view of one LangGraph SqliteSaver database. */
 export class CheckpointDb {
     warnings;
+    /** Language of error messages raised after opening; may be changed at any time (e.g. a UI language switch). */
+    lang;
     reader;
     cache = new Map();
-    constructor(reader) {
+    constructor(reader, lang) {
         this.reader = reader;
         this.warnings = reader.warnings;
+        this.lang = lang;
     }
     /** @throws NotCheckpointDbError when the file is not a LangGraph checkpoint database. */
     static async open(input, options = {}) {
-        return new CheckpointDb(await SqliteReader.open(input, options));
+        return new CheckpointDb(await SqliteReader.open(input, options), options.lang ?? "en");
     }
     close() {
         this.cache.clear();
@@ -72,7 +76,7 @@ export class CheckpointDb {
     /** Entries from the first checkpoint (step -1) to the latest, following parent_checkpoint_id. */
     timeline(threadId, ns = "") {
         if (this.chain(threadId, ns).length === 0) {
-            throw new NotFoundError(`no checkpoints for thread "${threadId}" in namespace "${ns}"; run "graphtrail threads" to list them`);
+            throw new NotFoundError(t(this.lang, "noCheckpoints", { thread: threadId, ns }));
         }
         return this.entries(threadId, ns);
     }
@@ -89,7 +93,7 @@ export class CheckpointDb {
     getCheckpoint(threadId, sel = {}, ns = "") {
         const chain = this.chain(threadId, ns);
         if (chain.length === 0) {
-            throw new NotFoundError(`no checkpoints for thread "${threadId}" in namespace "${ns}"; run "graphtrail threads" to list them`);
+            throw new NotFoundError(t(this.lang, "noCheckpoints", { thread: threadId, ns }));
         }
         if (sel.id !== undefined) {
             const wanted = sel.id;
@@ -97,15 +101,15 @@ export class CheckpointDb {
             if (hits.length === 1 && hits[0])
                 return hits[0].cp;
             throw new NotFoundError(hits.length === 0
-                ? `no checkpoint id starts with "${wanted}" in thread "${threadId}"`
-                : `checkpoint id prefix "${wanted}" is ambiguous (${hits.length} matches); use more characters`);
+                ? t(this.lang, "noIdPrefix", { id: wanted, thread: threadId })
+                : t(this.lang, "ambiguousId", { id: wanted, n: hits.length }));
         }
         if (sel.step !== undefined) {
             const hit = chain.find((l) => l.cp.step === sel.step);
             if (hit)
                 return hit.cp;
             const steps = chain.map((l) => l.cp.step).join(", ");
-            throw new NotFoundError(`thread "${threadId}" has no step ${sel.step}; available steps: ${steps}`);
+            throw new NotFoundError(t(this.lang, "noStep", { thread: threadId, step: sel.step, steps }));
         }
         return chain.at(-1).cp;
     }
@@ -126,7 +130,7 @@ export class CheckpointDb {
         }
         const leaves = [...byId.keys()].filter((id) => !hasChild.has(id)).sort();
         if (leaves.length > 1) {
-            this.warnings.push(`thread "${threadId}" has ${leaves.length} branches (fork or update_state); showing the chain of the newest one`);
+            this.warnings.push(t(this.lang, "branches", { thread: threadId, n: leaves.length }));
         }
         const result = [];
         const visited = new Set();

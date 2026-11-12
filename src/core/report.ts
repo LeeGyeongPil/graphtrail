@@ -3,6 +3,14 @@ import { isTagged } from "./decode.ts";
 import { diffStates, extractToolCalls, messageId, messageKind, stable } from "./diff.ts";
 import type { Report, StateDiff, ToolPair } from "./model.ts";
 import type { CheckpointDb } from "./timeline.ts";
+import { t } from "./i18n.ts";
+import type { Lang } from "./i18n.ts";
+
+/** Options of the text renderers. */
+export interface RenderOptions {
+  /** Language of titles, labels and descriptions. Default "en". Data from the database is never translated. */
+  lang?: Lang;
+}
 
 /** Build the full report of one thread: timeline, latest state, and the diff of each step. */
 export function buildReport(db: CheckpointDb, threadId: string, ns = ""): Report {
@@ -61,7 +69,7 @@ export function describePair(pair: ToolPair): string {
 }
 
 /** The change lines shared by the Markdown and HTML renderers. */
-export function describeChanges(d: StateDiff): string[] {
+export function describeChanges(d: StateDiff, lang: Lang = "en"): string[] {
   const items: string[] = [];
   for (const c of d.changes) {
     if (c.key === "messages") continue;
@@ -71,11 +79,12 @@ export function describeChanges(d: StateDiff): string[] {
         : c.kind === "removed"
           ? compact(c.before)
           : `${compact(c.before)} -> ${compact(c.after)}`;
-    items.push(`${c.kind} ${c.key}: ${detail}`);
+    const kind = t(lang, c.kind === "added" ? "kindAdded" : c.kind === "removed" ? "kindRemoved" : "kindChanged");
+    items.push(t(lang, "changeLine", { kind, key: c.key, detail }));
   }
-  for (const m of d.messages.added) items.push(`message: ${describeMessage(m)}`);
-  for (const p of d.toolPairs) items.push(`tool: ${describePair(p)}`);
-  if (items.length === 0) items.push("no state change");
+  for (const m of d.messages.added) items.push(t(lang, "messageLine", { text: describeMessage(m) }));
+  for (const p of d.toolPairs) items.push(t(lang, "toolLine", { text: describePair(p) }));
+  if (items.length === 0) items.push(t(lang, "noChange"));
   return items;
 }
 
@@ -83,33 +92,36 @@ function cell(text: string): string {
   return text.replace(/\|/g, "\\|").replace(/\n/g, " ");
 }
 
-export function renderMarkdown(report: Report): string {
-  const t = report.thread;
+export function renderMarkdown(report: Report, options: RenderOptions = {}): string {
+  const lang = options.lang ?? "en";
+  const th = report.thread;
   const lines: string[] = [];
-  lines.push(`# graphtrail report: thread ${t.threadId}${t.ns ? ` (ns ${t.ns})` : ""}`, "");
-  lines.push(`- schema version: ${report.schemaVersion}`);
-  lines.push(`- status: ${t.status}`);
-  lines.push(`- written by: ${t.writer}`);
-  lines.push(`- checkpoints: ${report.timeline.length}`, "");
-  lines.push("## Timeline", "");
-  lines.push("Each row is the step that runs from that checkpoint: nodes are estimated from versions_seen (the database does not store node names), changed keys are the state difference that step produced.", "");
-  lines.push("| step | source | nodes (estimated) | changed keys | interrupt |", "|---|---|---|---|---|");
+  const ns = th.ns ? ` (ns ${th.ns})` : "";
+  lines.push(`# ${t(lang, "mdTitle", { thread: th.threadId, ns })}`, "");
+  lines.push(`- ${t(lang, "mdSchema", { v: report.schemaVersion })}`);
+  lines.push(`- ${t(lang, "mdStatus", { status: th.status })}`);
+  lines.push(`- ${t(lang, "mdWriter", { writer: th.writer })}`);
+  lines.push(`- ${t(lang, "mdCheckpoints", { n: report.timeline.length })}`, "");
+  lines.push(`## ${t(lang, "timelineHeading")}`, "");
+  lines.push(t(lang, "timelineNote"), "");
+  const head = [t(lang, "colStep"), t(lang, "colSource"), t(lang, "colNodes"), t(lang, "colChanged"), t(lang, "colInterrupt")];
+  lines.push(`| ${head.join(" | ")} |`, "|---|---|---|---|---|");
   for (const e of report.timeline) {
     const interrupt = e.interrupts.length > 0 ? cell(compact(e.interrupts, 80)) : "";
     lines.push(
       `| ${e.step} | ${e.source} | ${cell(e.nodes.join(", "))} | ${cell(e.changedKeys.join(", "))} | ${interrupt} |`,
     );
   }
-  lines.push("", "## Steps", "");
+  lines.push("", `## ${t(lang, "stepsHeading")}`, "");
   for (const d of report.diffs) {
-    lines.push(`### step ${d.from.step} -> ${d.to.step}`, "");
-    for (const item of describeChanges(d)) lines.push(`- ${item}`);
+    lines.push(`### ${t(lang, "stepRange", { from: d.from.step, to: d.to.step })}`, "");
+    for (const item of describeChanges(d, lang)) lines.push(`- ${item}`);
     lines.push("");
   }
   const failed = report.timeline.filter((e) => e.errors.length > 0);
   if (failed.length > 0) {
-    lines.push("## Errors", "");
-    for (const e of failed) lines.push(`- step ${e.step}: ${compact(e.errors, 160)}`);
+    lines.push(`## ${t(lang, "errorsHeading")}`, "");
+    for (const e of failed) lines.push(`- ${t(lang, "errorLine", { step: e.step, text: compact(e.errors, 160) })}`);
     lines.push("");
   }
   return `${lines.join("\n")}\n`;
