@@ -5,6 +5,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [0.2.0]
+
+### Added
+
+- English and Korean display language. CLI: `--lang en|ko` > `GRAPHTRAIL_LANG` > `LC_ALL` > `LC_MESSAGES` > `LANG`; anything that is not Korean means English. Help, table headings, labels, errors (including `parseArgs` errors), warnings and the Markdown and HTML reports are localized. VS Code extension: `package.nls.json` / `package.nls.ko.json` for the manifest and a `graphtrail.language` setting (`auto`, `en`, `ko`) for the tree, the report and the dialogs; changing it redraws open panels.
+- Library: optional `lang` in `OpenOptions` (error and warning messages), optional `{ lang }` for `renderMarkdown` / `renderHtml`, optional `lang` argument for `describeChanges`, and the `Lang` type and `resolveLang()`. The default stays `"en"`, so library output is unchanged.
+
+### Changed
+
+- On a Korean locale (`LANG=ko_KR.UTF-8` and the like) the CLI now prints Korean by default. Set `GRAPHTRAIL_LANG=en` (or pass `--lang en`) to keep English. `--json` and `export --format json` output is never translated and did not change; English text is identical to 0.1.3.
+- Text tables line up Korean (full-width) characters by display width.
+
 ## [0.1.3]
 
 ### Fixed
