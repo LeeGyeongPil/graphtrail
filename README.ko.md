@@ -4,7 +4,7 @@
 
 LangGraph 에이전트가 남긴 체크포인트 DB(SQLite 파일 하나)를 그래프 코드나 개발 서버 없이 열어서, 스레드별 실행 이력과 단계별 상태 차이를 보여 주는 읽기 전용 도구입니다.
 
-![HTML 리포트의 타임라인 표](docs/images/01-hero.png)
+![HTML 리포트의 타임라인 표](docs/images/01-hero.ko.png)
 *`graphtrail export --format html` 로 만든 리포트의 타임라인. 샘플 스레드 t1 의 단계, 추정 노드, 바뀐 키가 한 표에 모입니다.*
 
 ## 무엇을 더해 주나요
@@ -38,27 +38,27 @@ Node.js 가 없다면 <https://nodejs.org/> 에서 설치합니다(macOS: `brew 
 git clone https://github.com/LeeGyeongPil/graphtrail.git
 cd graphtrail
 npm ci            # 개발 의존성 설치
-npm pack          # graphtrail-0.1.3.tgz 생성 (dist/ 는 이미 커밋되어 있어 빌드가 필요 없음)
-npm install -g ./graphtrail-0.1.3.tgz
+npm pack          # graphtrail-0.2.0.tgz 생성 (dist/ 는 이미 커밋되어 있어 빌드가 필요 없음)
+npm install -g ./graphtrail-0.2.0.tgz
 graphtrail --version
 ```
 
 ```text
-0.1.3
+0.2.0
 ```
 
-릴리스 페이지에 `graphtrail-0.1.3.tgz` 가 올라와 있으면 `npm install -g ./graphtrail-0.1.3.tgz` 한 줄이면 됩니다. 전역 설치가 싫다면 설치 없이 `node dist/cli.js <명령>` 으로도 같은 일을 합니다(예시의 `graphtrail` 을 `node dist/cli.js` 로 바꿔 실행하면 됩니다). `npm ci` 때 esbuild·@vscode/vsce-sign 설치 스크립트 경고가 보일 수 있으나 무시해도 됩니다(CLI 의 런타임 의존성은 `sql.js`, `@msgpack/msgpack` 두 개뿐입니다).
+릴리스 페이지에 `graphtrail-0.2.0.tgz` 가 올라와 있으면 `npm install -g ./graphtrail-0.2.0.tgz` 한 줄이면 됩니다. 전역 설치가 싫다면 설치 없이 `node dist/cli.js <명령>` 으로도 같은 일을 합니다(예시의 `graphtrail` 을 `node dist/cli.js` 로 바꿔 실행하면 됩니다). `npm ci` 때 esbuild·@vscode/vsce-sign 설치 스크립트 경고가 보일 수 있으나 무시해도 됩니다(CLI 의 런타임 의존성은 `sql.js`, `@msgpack/msgpack` 두 개뿐입니다).
 
 > **알려진 한계**: `npm install -g git+https://github.com/LeeGyeongPil/graphtrail.git` 처럼 git URL 로 **전역** 설치하면 npm 11.20.0 에서 실패했습니다(전역 폴더가 설치 후 지워지는 임시 클론으로의 심볼릭 링크가 되어 `graphtrail` 실행 파일이 끊어짐). 같은 git URL 을 프로젝트 로컬(`npm install git+https://...`)로 설치하거나 tarball 로 설치하면 동작합니다. npm 버전에 따라 다를 수 있습니다.
 
 ### VS Code 확장
 
 ```bash
-npm run vsix      # vscode/graphtrail-vscode-0.1.3.vsix 생성
-code --install-extension vscode/graphtrail-vscode-0.1.3.vsix
+npm run vsix      # vscode/graphtrail-vscode-0.2.0.vsix 생성
+code --install-extension vscode/graphtrail-vscode-0.2.0.vsix
 ```
 
-> **정직하게**: 확장은 `.vsix` 패키징, 매니페스트 검사, 타입 검사까지만 자동 테스트로 확인했습니다. **실제 VS Code 에서 설치해 열어 본 적은 없습니다.** 확장 호스트에서의 동작(커스텀 에디터 표시, 트리 뷰)은 검증되지 않았으니, 써 보고 문제가 있으면 이슈로 알려 주세요. 위 `code --install-extension` 명령도 직접 실행해 보지 못했습니다. 핵심 기능은 CLI 로 확인되어 있습니다.
+> **정직하게**: 확장은 `.vsix` 패키징, 매니페스트 검사, 타입 검사까지만 자동 테스트로 확인했습니다. **실제 VS Code 에서 설치해 열어 본 적은 없습니다.** 확장 호스트에서의 동작(커스텀 에디터 표시, 트리 뷰)은 검증되지 않았으니, 써 보고 문제가 있으면 이슈로 알려 주시기 바랍니다. 위 `code --install-extension` 명령도 직접 실행해 보지 못했습니다. 핵심 기능은 CLI 로 확인되어 있습니다.
 
 ## 사용법
 
@@ -71,17 +71,17 @@ graphtrail threads fixtures/py-agent.sqlite
 ```
 
 ```text
-thread  ns                                        checkpoints  last step  status       writer
-t1      (root)                                    6            4          done         python
-t2      (root)                                    5            3          interrupted  python
-t3      (root)                                    4            2          done         python
-t3      sub:f376348e-4d08-6260-9f1a-21c7c814ebe3  4            2          done         python
+스레드  ns                                        체크포인트  마지막 단계  상태         기록 주체
+t1      (루트)                                    6           4            done         python
+t2      (루트)                                    5           3            interrupted  python
+t3      (루트)                                    4           2            done         python
+t3      sub:f376348e-4d08-6260-9f1a-21c7c814ebe3  4           2            done         python
 ```
 
-![threads 출력](docs/images/02-threads.png)
+![threads 출력](docs/images/02-threads.ko.png)
 *스레드 4줄. t2 는 interrupt 로 멈춰 있고, t3 는 서브그래프(`sub:...`)가 별도 줄로 나옵니다.*
 
-무슨 뜻인지: `ns` 가 `(root)` 면 최상위 그래프이고, `sub:...` 는 서브그래프 이력입니다. `writer` 는 DB 를 쓴 쪽(Python 이면 msgpack, JS 면 JSON)입니다. `--json` 을 붙이면 같은 내용을 JSON 으로 줍니다.
+무슨 뜻인지: `ns` 가 `(루트)` 면(영어 출력에서는 `(root)`) 최상위 그래프이고, `sub:...` 는 서브그래프 이력입니다. `기록 주체`(영어 출력 `writer`)는 DB 를 쓴 쪽(Python 이면 msgpack, JS 면 JSON)입니다. `--json` 을 붙이면 같은 내용을 JSON 으로 줍니다.
 
 ### 2. 타임라인 — `timeline`
 
@@ -90,22 +90,22 @@ graphtrail timeline fixtures/py-agent.sqlite --thread t1
 ```
 
 ```text
-step  source  nodes (estimated)  changed keys
--1    input   -                  messages
-0     loop    agent              messages, plan, budget, started, timeout, run_id, tags, level
-1     loop    tools              messages
-2     loop    agent              messages, budget
-3     loop    approve            approved
-4     loop    -                  -
-  step 0: tool call add({"a":2,"b":3})
-  step 1: tool result 5
-  step 3: __interrupt__ [{"$ext":"ctor_kw_args","$type":"langgraph.types.Interrupt","value":{"id":"7648f651056bc165497ef448…
+단계  출처   노드 (추정)  변경된 키
+-1    input  -            messages
+0     loop   agent        messages, plan, budget, started, timeout, run_id, tags, level
+1     loop   tools        messages
+2     loop   agent        messages, budget
+3     loop   approve      approved
+4     loop   -            -
+  단계 0: 도구 호출 add({"a":2,"b":3})
+  단계 1: 도구 결과 5
+  단계 3: __interrupt__ [{"$ext":"ctor_kw_args","$type":"langgraph.types.Interrupt","value":{"id":"7648f651056bc165497ef448…
 ```
 
-![timeline 출력](docs/images/03-timeline.png)
+![timeline 출력](docs/images/03-timeline.ko.png)
 *t1 의 입력과 5단계(step -1~4). agent 가 도구를 부르고(step 0), tools 가 5 를 돌려주고(step 1), approve 에서 interrupt 가 걸립니다(step 3).*
 
-무슨 뜻인지: 한 행은 "이 체크포인트에서 시작해 다음 체크포인트까지 실행된 한 단계"입니다. `nodes` 는 그 단계에서 실행된 노드, `changed keys` 는 그 단계가 바꾼 상태 키(이 체크포인트와 다음 체크포인트의 차이)이므로 두 열이 같은 시점을 가리킵니다. 예: step 1 행은 `tools` 가 `messages` 만 바꿨다는 뜻입니다. 마지막 행은 다음 체크포인트가 없어 `changed keys` 가 `-` 입니다(`nodes` 는 `-` 이거나, interrupt 로 멈춘 스레드라면 값이 들어갑니다). 예를 들어 interrupted 스레드 t2 의 마지막 행(step 3)은 `nodes` 가 `agent, tools, approve` 로 나옵니다. 이 열은 `versions_seen` 으로 추정한 노드 이름 전체이므로, 대기 중인 노드가 `approve` 하나여도 지금까지 움직인 노드가 함께 보일 수 있습니다. `step -1` 은 입력, 이후는 그래프가 한 번 돌 때마다 하나씩입니다. **노드 이름은 DB 에 저장되지 않습니다.** 다음 체크포인트의 `versions_seen` 이 움직인 노드를 보고 추정하므로 열 이름에 `(estimated)` 가 붙습니다. 서브그래프는 `--ns sub:<id>` 로 봅니다. 스레드가 하나뿐인 DB 는 `--thread` 를 생략할 수 있고, 여럿이면 종료 코드 2 와 함께 스레드 목록을 알려 줍니다. 없는 스레드·네임스페이스를 줘도 종료 코드 2 와 안내 메시지가 나옵니다(`show`·`diff`·`export` 와 같음).
+무슨 뜻인지: 한 행은 "이 체크포인트에서 시작해 다음 체크포인트까지 실행된 한 단계"입니다. `노드 (추정)`(영어 출력 `nodes`)은 그 단계에서 실행된 노드, `변경된 키`(영어 출력 `changed keys`)는 그 단계가 바꾼 상태 키(이 체크포인트와 다음 체크포인트의 차이)이므로 두 열이 같은 시점을 가리킵니다. 예: step 1 행은 `tools` 노드가 `messages` 만 바꿨다는 뜻입니다. 마지막 행은 다음 체크포인트가 없어 `변경된 키` 가 `-` 입니다(노드 열은 `-` 이거나, interrupt 로 멈춘 스레드라면 값이 들어갑니다). 예를 들어 interrupted 스레드 t2 의 마지막 행(step 3)은 노드 열이 `agent, tools, approve` 로 나옵니다. 이 열은 `versions_seen` 으로 추정한 노드 이름 전체이므로, 대기 중인 노드가 `approve` 하나여도 지금까지 움직인 노드가 함께 보일 수 있습니다. `step -1` 은 입력, 이후는 그래프가 한 번 돌 때마다 하나씩입니다. **노드 이름은 DB 에 저장되지 않습니다.** 다음 체크포인트의 `versions_seen` 이 움직인 노드를 보고 추정하므로 열 이름에 `(estimated)`(한국어 출력에서는 `(추정)`)가 붙습니다. 서브그래프는 `--ns sub:<id>` 로 봅니다. 스레드가 하나뿐인 DB 는 `--thread` 를 생략할 수 있고, 여럿이면 종료 코드 2 와 함께 스레드 목록을 알려 줍니다. 없는 스레드·네임스페이스를 줘도 종료 코드 2 와 안내 메시지가 나옵니다(`show`·`diff`·`export` 와 같음).
 
 ### 3. 한 단계의 상태 — `show`
 
@@ -113,7 +113,7 @@ step  source  nodes (estimated)  changed keys
 graphtrail show fixtures/py-agent.sqlite --thread t1 --step 1
 ```
 
-![show 출력](docs/images/04-show.png)
+![show 출력](docs/images/04-show.ko.png)
 *step 1 의 상태. `$type`/`$ext` 는 "저장된 값이 이런 파이썬 타입의 이런 방식 생성"이라는 표시일 뿐, 실제 객체는 만들어지지 않았습니다.*
 
 `--id <체크포인트 id 앞부분>` 으로도 고를 수 있고, `--json` 은 줄임 없이 전체 상태를 줍니다.
@@ -124,8 +124,8 @@ graphtrail show fixtures/py-agent.sqlite --thread t1 --step 1
 graphtrail diff fixtures/py-agent.sqlite --thread t1 --from 0 --to 3
 ```
 
-![diff 출력](docs/images/05-diff.png)
-*step 0 에서 step 3 까지: 추가된 메시지 3개와 `tool: add({"a":2,"b":3}) -> 5` 쌍이 보입니다.*
+![diff 출력](docs/images/05-diff.ko.png)
+*step 0 에서 step 3 까지: 추가된 메시지 3개와 `도구: add({"a":2,"b":3}) -> 5`(영어 출력은 `tool: ...`) 쌍이 보입니다.*
 
 ### 5. 내보내기 — `export`
 
@@ -136,8 +136,8 @@ graphtrail export fixtures/py-agent.sqlite --thread t1 --format html > t1.html
 
 `--format` 은 `json`·`md`·`html` 이고 결과는 표준 출력으로 나옵니다. 같은 입력이면 같은 출력이 나오도록 만들었습니다(순서·시각 고정). HTML 은 외부 파일을 읽지 않는 한 파일이며, 엄격한 콘텐츠 보안 정책(CSP)이 들어 있고 상태 값은 이스케이프됩니다.
 
-![HTML 리포트의 단계별 변화](docs/images/07-steps.png)
-*HTML 리포트의 "Steps"(단계별 변화) 영역.*
+![HTML 리포트의 단계별 변화](docs/images/07-steps.ko.png)
+*HTML 리포트의 "단계별 변경"(영어 출력은 "Steps") 영역.*
 
 ### 6. LangGraph DB 가 아닐 때
 
@@ -146,7 +146,7 @@ graphtrail threads fixtures/not-langgraph.sqlite
 ```
 
 ```text
-graphtrail: not a LangGraph checkpoint database (missing table: checkpoints)
+graphtrail: LangGraph 체크포인트 데이터베이스가 아닙니다 (테이블이 없습니다: checkpoints)
 ```
 
 ```bash
@@ -157,8 +157,8 @@ echo $?
 2
 ```
 
-![LangGraph 가 아닌 DB 를 열었을 때](docs/images/06-not-langgraph.png)
-*다른 SQLite 파일은 거절합니다. 오류 메시지가 먼저 나오고, 이어 `echo $?` 로 확인하면 종료 코드 2 가 나옵니다(이미지는 두 출력의 줄 순서가 실제와 다르게 담겼습니다).*
+![LangGraph 가 아닌 DB 를 열었을 때](docs/images/06-not-langgraph.ko.png)
+*다른 SQLite 파일은 거절합니다. 오류 메시지가 먼저 나오고, 이어 `echo $?` 로 확인하면 종료 코드 2 가 나옵니다.*
 
 ### 종료 코드
 
@@ -170,14 +170,25 @@ echo $?
 
 ### VS Code 안에서 (미검증)
 
-설계상 `*.sqlite`·`*.sqlite3`·`*.db` 파일을 "graphtrail checkpoint viewer" 로 열 수 있고(우선순위 `option` 이라 기본 열기 방식은 바뀌지 않음), 명령 팔레트에 `graphtrail: Open Checkpoint Database` 가 추가됩니다. 데이터베이스가 열리면 탐색기에 스레드 트리가 나타납니다. 위에서 밝혔듯 실제 VS Code 에서는 확인하지 못했습니다.
+설계상 `*.sqlite`·`*.sqlite3`·`*.db` 파일을 "graphtrail checkpoint viewer" 로 열 수 있고(우선순위 `option` 이라 기본 열기 방식은 바뀌지 않음), 명령 팔레트에 `graphtrail: 체크포인트 데이터베이스 열기`(VS Code 표시 언어가 영어이면 `graphtrail: Open Checkpoint Database`)가 추가됩니다. 데이터베이스가 열리면 탐색기에 스레드 트리가 나타납니다. 위에서 밝혔듯 실제 VS Code 에서는 확인하지 못했습니다.
 
 ## 설정
 
-설정 항목은 없습니다. 동작은 명령줄 옵션으로만 바뀝니다.
+명령줄 옵션과 VS Code 설정 하나(`graphtrail.language`)가 전부입니다.
+
+**표시 언어(영어·한국어)**: CLI 는 `--lang en|ko` > `GRAPHTRAIL_LANG` 환경 변수 > `LC_ALL` > `LC_MESSAGES` > `LANG` 순으로 정하며, 한국어가 아니면 영어입니다. 도움말·표 머리글·오류·경고·`export --format md|html` 보고서가 바뀌고, `--json`·`export --format json` 출력과 데이터(스레드 id, 키, 노드 이름, 메시지 내용)는 번역하지 않습니다.
+
+```bash
+graphtrail --lang ko threads fixtures/py-agent.sqlite
+GRAPHTRAIL_LANG=ko graphtrail timeline fixtures/py-agent.sqlite --thread t1
+GRAPHTRAIL_LANG=en graphtrail threads fixtures/py-agent.sqlite   # 한국어 로케일에서 영어로 되돌리기
+```
+
+VS Code 확장은 `graphtrail.language` 설정(`auto`·`en`·`ko`, 기본 `auto`)으로 고릅니다. `auto` 는 VS Code 표시 언어를 따르고, 값을 바꾸면 열린 보고서와 트리가 바로 다시 그려집니다. 명령·뷰 이름 같은 매니페스트 문구는 VS Code 표시 언어를 따릅니다.
 
 | 옵션 | 기본값 | 설명 |
 |---|---|---|
+| `--lang en\|ko` | `GRAPHTRAIL_LANG` → `LC_ALL` → `LC_MESSAGES` → `LANG`, 그 밖에는 영어 | 표시 언어 |
 | `--thread ID` | 스레드가 하나면 그 스레드 | 읽을 스레드 |
 | `--ns NS` | 루트 그래프 | 서브그래프 네임스페이스 |
 | `--step N` / `--id PREFIX` | - | `show` 에서 단계 또는 체크포인트 지정 |
@@ -208,28 +219,28 @@ flowchart LR
 
 | 증상 | 원인 | 해결 |
 |---|---|---|
-| `--thread is required; this database has 3 threads` | DB 에 스레드가 여러 개 | 안내된 목록에서 `--thread t1` 처럼 지정 |
-| `not a LangGraph checkpoint database` | `checkpoints` 테이블이 없는 파일 | 올바른 DB 경로인지, `SqliteSaver` 로 만든 파일인지 확인 |
+| `--thread 가 필요합니다. 이 데이터베이스에는 스레드가 3개 있습니다`(영어 출력 `--thread is required; this database has 3 threads`) | DB 에 스레드가 여러 개 | 안내된 목록에서 `--thread t1` 처럼 지정 |
+| `LangGraph 체크포인트 데이터베이스가 아닙니다`(영어 출력 `not a LangGraph checkpoint database`) | `checkpoints` 테이블이 없는 파일 | 올바른 DB 경로인지, `SqliteSaver` 로 만든 파일인지 확인 |
 | 노드 열이 `-` (또는 interrupted 스레드 마지막 행에 `agent, tools, approve` 처럼 여러 개) | 마지막 단계이거나 대기 노드를 알 수 없음. interrupt 로 멈춘 스레드는 추정 노드가 여러 개 보일 수 있음 | 정상입니다. 노드 이름은 저장되지 않고 추정만 합니다 |
 | 분기(fork)가 있는 스레드에서 일부 이력이 안 보임 | 가장 새 잎의 사슬만 보여 줌 | 경고가 출력됩니다. 분기 트리는 아직 미구현 |
 | 일부 값이 `delta_snapshot` 표식으로만 보임 | 델타 채널(msgpack 확장 타입 7)을 쓰는 그래프 | 값 재구성은 아직 미구현. 표식만 보입니다 |
-| 실행 중인 앱의 최신 체크포인트가 안 보임(DB 옆에 `<db>-wal` 파일이 있음) | `SqliteSaver` 는 WAL 모드라 SQLite 가 체크포인트하기 전까지 최신 기록이 `-wal` 에 있음 | 0.1.3 부터 `-wal` 의 커밋된 기록을 읽기만 해서 반영하고 CLI 는 `warning:` 한 줄을 알립니다. 원본은 그대로 |
+| 실행 중인 앱의 최신 체크포인트가 안 보임(DB 옆에 `<db>-wal` 파일이 있음) | `SqliteSaver` 는 WAL 모드라 SQLite 가 체크포인트하기 전까지 최신 기록이 `-wal` 에 있음 | 0.1.3 부터 `-wal` 의 커밋된 기록을 읽기만 해서 반영하고 CLI 는 `warning:`(한국어 출력에서는 `경고:`) 한 줄을 알립니다. 원본은 그대로 |
 | Postgres 저장소를 열 수 없음 | SQLite 만 지원 | 이후 버전 과제 |
 | `npm install -g git+...` 뒤 `graphtrail: command not found` | npm 11.20.0 의 git 전역 설치 문제 | tarball 로 설치 |
 
-`-wal` 처리를 직접 확인하려면 저장소에 든 픽스처로 실행해 보세요(본 파일에는 `t1` 만 있고 나머지는 옆의 `-wal` 에 있습니다). `warning:` 줄은 stderr 로 나가고 종료 코드는 0 입니다.
+`-wal` 처리를 직접 확인하려면 저장소에 든 픽스처로 실행해 볼 수 있습니다(본 파일에는 `t1` 만 있고 나머지는 옆의 `-wal` 에 있습니다). `warning:`(한국어 출력에서는 `경고:`) 줄은 stderr 로 나가고 종료 코드는 0 입니다.
 
 ```text
 $ graphtrail threads fixtures/wal-agent.sqlite
-warning: included 1 committed transaction(s) from fixtures/wal-agent.sqlite-wal that are not yet checkpointed
-thread  ns                                        checkpoints  last step  status       writer
-t1      (root)                                    6            4          done         python
-t2      (root)                                    5            3          interrupted  python
-t3      (root)                                    4            2          done         python
-t3      sub:f376348e-4d08-6260-9f1a-21c7c814ebe3  4            2          done         python
+경고: 아직 체크포인트되지 않은 커밋된 트랜잭션 1개를 fixtures/wal-agent.sqlite-wal에서 포함했습니다
+스레드  ns                                        체크포인트  마지막 단계  상태         기록 주체
+t1      (루트)                                    6           4            done         python
+t2      (루트)                                    5           3            interrupted  python
+t3      (루트)                                    4           2            done         python
+t3      sub:f376348e-4d08-6260-9f1a-21c7c814ebe3  4           2            done         python
 ```
 
-알려진 한계: VS Code 확장도 `-wal` 을 반영하지만 `warning:` 줄은 화면에 보여 주지 않습니다(CLI 는 보여 줍니다).
+알려진 한계: VS Code 확장도 `-wal` 을 반영하지만 `warning:`(`경고:`) 줄은 화면에 보여 주지 않습니다(CLI 는 보여 줍니다).
 
 ## 개발·기여
 

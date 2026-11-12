@@ -2,7 +2,7 @@
 
 **English** | [한국어](README.ko.md)
 
-graphtrail opens a LangGraph `SqliteSaver` checkpoint database (Python or JS, a single SQLite file) from the command line or from a read-only VS Code extension, without the graph code or a dev server. It rebuilds each thread's timeline, shows state diffs between steps and interrupts, and never imports or runs any code found in the file. Install: `npm pack && npm install -g ./graphtrail-0.1.3.tgz`.
+graphtrail opens a LangGraph `SqliteSaver` checkpoint database (Python or JS, a single SQLite file) from the command line or from a read-only VS Code extension, without the graph code or a dev server. It rebuilds each thread's timeline, shows state diffs between steps and interrupts, and never imports or runs any code found in the file. Install: `npm pack && npm install -g ./graphtrail-0.2.0.tgz`.
 
 ![Timeline table of the HTML report](docs/images/01-hero.png)
 *The timeline of a report made with `graphtrail export --format html`. The steps, estimated nodes, and changed keys of the sample thread t1 come together in one table.*
@@ -38,24 +38,24 @@ The recommended method is the **tarball install**. It has not been uploaded to t
 git clone https://github.com/LeeGyeongPil/graphtrail.git
 cd graphtrail
 npm ci            # Install dev dependencies
-npm pack          # Creates graphtrail-0.1.3.tgz (dist/ is already committed, so no build is needed)
-npm install -g ./graphtrail-0.1.3.tgz
+npm pack          # Creates graphtrail-0.2.0.tgz (dist/ is already committed, so no build is needed)
+npm install -g ./graphtrail-0.2.0.tgz
 graphtrail --version
 ```
 
 ```text
-0.1.3
+0.2.0
 ```
 
-If `graphtrail-0.1.3.tgz` is on the releases page, the single line `npm install -g ./graphtrail-0.1.3.tgz` is enough. If you don't like a global install, `node dist/cli.js <command>` does the same thing without installing (replace `graphtrail` in the examples with `node dist/cli.js`). During `npm ci` you may see install-script warnings from esbuild and @vscode/vsce-sign, but you can ignore them (the CLI's runtime dependencies are just two: `sql.js` and `@msgpack/msgpack`).
+If `graphtrail-0.2.0.tgz` is on the releases page, the single line `npm install -g ./graphtrail-0.2.0.tgz` is enough. If you don't like a global install, `node dist/cli.js <command>` does the same thing without installing (replace `graphtrail` in the examples with `node dist/cli.js`). During `npm ci` you may see install-script warnings from esbuild and @vscode/vsce-sign, but you can ignore them (the CLI's runtime dependencies are just two: `sql.js` and `@msgpack/msgpack`).
 
 > **Known limitation**: A **global** install by git URL such as `npm install -g git+https://github.com/LeeGyeongPil/graphtrail.git` failed on npm 11.20.0 (the global folder becomes a symlink to a temporary clone that is deleted after install, so the `graphtrail` executable breaks). Installing the same git URL project-locally (`npm install git+https://...`) or installing by tarball works. It may differ by npm version.
 
 ### VS Code extension
 
 ```bash
-npm run vsix      # Creates vscode/graphtrail-vscode-0.1.3.vsix
-code --install-extension vscode/graphtrail-vscode-0.1.3.vsix
+npm run vsix      # Creates vscode/graphtrail-vscode-0.2.0.vsix
+code --install-extension vscode/graphtrail-vscode-0.2.0.vsix
 ```
 
 > **To be honest**: For the extension, only `.vsix` packaging, the manifest check, and the type check were confirmed by automated tests. **We have never installed and opened it in a real VS Code.** Behavior in the extension host (the custom editor display, the tree view) is unverified, so if you try it and hit a problem, please tell us in an issue. We have not run the `code --install-extension` command above ourselves either. The core features are confirmed through the CLI.
@@ -158,7 +158,7 @@ echo $?
 ```
 
 ![When a non-LangGraph DB is opened](docs/images/06-not-langgraph.png)
-*Other SQLite files are rejected. The error message appears first, and then checking with `echo $?` gives exit code 2 (in the image, the line order of the two outputs is captured differently from the real one).*
+*Other SQLite files are rejected. The error message appears first, and then checking with `echo $?` gives exit code 2.*
 
 ### Exit codes
 
@@ -174,10 +174,21 @@ By design, `*.sqlite`, `*.sqlite3`, and `*.db` files can be opened with the "gra
 
 ## Settings
 
-There are no settings. Behavior changes only through command-line options.
+Command-line options and one VS Code setting (`graphtrail.language`) are all there is.
+
+**Display language (English / Korean)**: the CLI picks `--lang en|ko` first, then the `GRAPHTRAIL_LANG` environment variable, then `LC_ALL`, `LC_MESSAGES` and `LANG`; anything that is not Korean means English. Help, table headings, errors, warnings and the `export --format md|html` reports change. `--json` and `export --format json` output and your data (thread ids, keys, node names, message contents) are never translated.
+
+```bash
+graphtrail --lang ko threads fixtures/py-agent.sqlite
+GRAPHTRAIL_LANG=ko graphtrail timeline fixtures/py-agent.sqlite --thread t1
+GRAPHTRAIL_LANG=en graphtrail threads fixtures/py-agent.sqlite   # force English on a Korean locale
+```
+
+The VS Code extension uses the `graphtrail.language` setting (`auto`, `en`, `ko`; default `auto`). `auto` follows the VS Code display language, and changing it redraws open reports and the tree at once. Manifest texts such as command and view names follow the VS Code display language.
 
 | Option | Default | Description |
 |---|---|---|
+| `--lang en\|ko` | `GRAPHTRAIL_LANG`, then `LC_ALL` / `LC_MESSAGES` / `LANG`, else English | Display language |
 | `--thread ID` | The thread, if there is only one | The thread to read |
 | `--ns NS` | The root graph | Subgraph namespace |
 | `--step N` / `--id PREFIX` | - | Specify a step or checkpoint in `show` |
