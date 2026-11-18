@@ -61,6 +61,18 @@ test("lookup errors say what exists", async () => {
   assert.equal(cli("timeline", fixture("py-agent.sqlite"), "--thread", "t1", "--ns", "nope").code, 2);
 });
 
+test("missing root-graph thread is reported as the root graph, not an empty namespace", () => {
+  const en = cli("--lang", "en", "timeline", fixture("py-agent.sqlite"), "--thread", "zz");
+  assert.equal(en.code, 2);
+  assert.match(en.stderr, /in the root graph \(root\)/);
+  assert.doesNotMatch(en.stderr, /""/);
+  const ko = cli("--lang", "ko", "timeline", fixture("py-agent.sqlite"), "--thread", "zz");
+  assert.equal(ko.code, 2);
+  assert.match(ko.stderr, /루트 그래프 \(루트\)/);
+  const sub = cli("--lang", "en", "timeline", fixture("py-agent.sqlite"), "--thread", "zz", "--ns", "sub");
+  assert.match(sub.stderr, /in namespace "sub"/);
+});
+
 test("a parent loop in a damaged file does not hang", async () => {
   // Two checkpoints that point at each other.
   const initSqlJs = createRequire(import.meta.url)("sql.js");
