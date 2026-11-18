@@ -116,8 +116,13 @@ async function run(argv: string[]): Promise<number> {
   if (dbPath === undefined) throw new UsageError(t(lang, "missingPath", { command }));
 
   const db = await openCheckpointDb(dbPath, { lang });
+  // Warnings can also be added while a command runs (for example the branch warning), so print each one once, as it appears.
+  let printed = 0;
+  const flushWarnings = (): void => {
+    for (; printed < db.warnings.length; printed++) process.stderr.write(`${t(lang, "warningPrefix")}${db.warnings[printed]}\n`);
+  };
   try {
-    for (const w of db.warnings) process.stderr.write(`${t(lang, "warningPrefix")}${w}\n`);
+    flushWarnings();
     const ns = values.ns ?? "";
 
     if (command === "threads") {
@@ -180,6 +185,7 @@ async function run(argv: string[]): Promise<number> {
     process.stdout.write(format === "json" ? renderJson(report) : format === "md" ? renderMarkdown(report, { lang }) : renderHtml(report, { lang }));
     return 0;
   } finally {
+    flushWarnings();
     db.close();
   }
 }
