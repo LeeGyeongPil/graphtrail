@@ -50,6 +50,8 @@ function pickThread(db, thread) {
     const ids = [...new Set(db.listThreads().map((t) => t.threadId))];
     if (ids.length === 1 && ids[0] !== undefined)
         return ids[0];
+    if (ids.length === 0)
+        throw new UsageError(t(lang, "emptyDb"));
     throw new UsageError(t(lang, "threadRequired", { n: ids.length, ids: ids.join(", ") }));
 }
 /** `--from`/`--to` accept a step number or a checkpoint id prefix. */
