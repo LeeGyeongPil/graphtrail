@@ -3,6 +3,14 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+## [0.2.2]
+
+### Fixed
+
+- An empty database (tables created, no checkpoints yet) now reports "This database has no checkpoints." instead of the misleading "--thread is required; this database has 0 threads:".
+
 ## [0.2.1]
 
 ### Fixed

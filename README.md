@@ -2,7 +2,7 @@
 
 **English** | [한국어](README.ko.md)
 
-graphtrail opens a LangGraph `SqliteSaver` checkpoint database (Python or JS, a single SQLite file) from the command line or from a read-only VS Code extension, without the graph code or a dev server. It rebuilds each thread's timeline, shows state diffs between steps and interrupts, and never imports or runs any code found in the file. Install: `npm pack && npm install -g ./graphtrail-0.2.0.tgz`.
+graphtrail opens a LangGraph `SqliteSaver` checkpoint database (Python or JS, a single SQLite file) from the command line or from a read-only VS Code extension, without the graph code or a dev server. It rebuilds each thread's timeline, shows state diffs between steps and interrupts, and never imports or runs any code found in the file. Install: `npm pack && npm install -g ./graphtrail-0.2.2.tgz`.
 
 ![Timeline table of the HTML report](docs/images/01-hero.png)
 *The timeline of a report made with `graphtrail export --format html`. The steps, estimated nodes, and changed keys of the sample thread t1 come together in one table.*
@@ -38,24 +38,24 @@ The recommended method is the **tarball install**. It has not been uploaded to t
 git clone https://github.com/LeeGyeongPil/graphtrail.git
 cd graphtrail
 npm ci            # Install dev dependencies
-npm pack          # Creates graphtrail-0.2.0.tgz (dist/ is already committed, so no build is needed)
-npm install -g ./graphtrail-0.2.0.tgz
+npm pack          # Creates graphtrail-0.2.2.tgz (dist/ is already committed, so no build is needed)
+npm install -g ./graphtrail-0.2.2.tgz
 graphtrail --version
 ```
 
 ```text
-0.2.0
+0.2.2
 ```
 
-If `graphtrail-0.2.0.tgz` is on the releases page, the single line `npm install -g ./graphtrail-0.2.0.tgz` is enough. If you don't like a global install, `node dist/cli.js <command>` does the same thing without installing (replace `graphtrail` in the examples with `node dist/cli.js`). During `npm ci` you may see install-script warnings from esbuild and @vscode/vsce-sign, but you can ignore them (the CLI's runtime dependencies are just two: `sql.js` and `@msgpack/msgpack`).
+If `graphtrail-0.2.2.tgz` is on the releases page, the single line `npm install -g ./graphtrail-0.2.2.tgz` is enough. If you don't like a global install, `node dist/cli.js <command>` does the same thing without installing (replace `graphtrail` in the examples with `node dist/cli.js`). During `npm ci` you may see install-script warnings from esbuild and @vscode/vsce-sign, but you can ignore them (the CLI's runtime dependencies are just two: `sql.js` and `@msgpack/msgpack`).
 
 > **Known limitation**: A **global** install by git URL such as `npm install -g git+https://github.com/LeeGyeongPil/graphtrail.git` failed on npm 11.20.0 (the global folder becomes a symlink to a temporary clone that is deleted after install, so the `graphtrail` executable breaks). Installing the same git URL project-locally (`npm install git+https://...`) or installing by tarball works. It may differ by npm version.
 
 ### VS Code extension
 
 ```bash
-npm run vsix      # Creates vscode/graphtrail-vscode-0.2.0.vsix
-code --install-extension vscode/graphtrail-vscode-0.2.0.vsix
+npm run vsix      # Creates vscode/graphtrail-vscode-0.2.2.vsix
+code --install-extension vscode/graphtrail-vscode-0.2.2.vsix
 ```
 
 > **To be honest**: For the extension, only `.vsix` packaging, the manifest check, and the type check were confirmed by automated tests. **We have never installed and opened it in a real VS Code.** Behavior in the extension host (the custom editor display, the tree view) is unverified, so if you try it and hit a problem, please tell us in an issue. We have not run the `code --install-extension` command above ourselves either. The core features are confirmed through the CLI.
@@ -221,6 +221,7 @@ Permissions and network: it does not connect to the network and reads only the D
 |---|---|---|
 | `--thread is required; this database has 3 threads` | The DB has several threads | Specify one from the list shown, like `--thread t1` |
 | `not a LangGraph checkpoint database` | A file with no `checkpoints` table | Check that it is the right DB path and a file made by `SqliteSaver` |
+| `This database has no checkpoints.` (exit code 2) | The tables exist but no checkpoint was saved yet | Run the graph at least once with `SqliteSaver`, or check that the DB path is the right file |
 | The node column is `-` (or several, such as `agent, tools, approve`, in the last row of an interrupted thread) | It is the last step or the waiting node is unknown. A thread stopped by an interrupt can show several estimated nodes | Normal. Node names are not stored and are only estimated |
 | Some history is missing in a thread with a fork | Only the chain of the newest leaf is shown | A warning is printed. The fork tree is not implemented yet |
 | Some values appear only as a `delta_snapshot` marker | A graph that uses a delta channel (msgpack extension type 7) | Reconstructing the values is not implemented yet. Only the marker is shown |

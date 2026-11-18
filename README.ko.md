@@ -38,24 +38,24 @@ Node.js 가 없다면 <https://nodejs.org/> 에서 설치합니다(macOS: `brew 
 git clone https://github.com/LeeGyeongPil/graphtrail.git
 cd graphtrail
 npm ci            # 개발 의존성 설치
-npm pack          # graphtrail-0.2.0.tgz 생성 (dist/ 는 이미 커밋되어 있어 빌드가 필요 없음)
-npm install -g ./graphtrail-0.2.0.tgz
+npm pack          # graphtrail-0.2.2.tgz 생성 (dist/ 는 이미 커밋되어 있어 빌드가 필요 없음)
+npm install -g ./graphtrail-0.2.2.tgz
 graphtrail --version
 ```
 
 ```text
-0.2.0
+0.2.2
 ```
 
-릴리스 페이지에 `graphtrail-0.2.0.tgz` 가 올라와 있으면 `npm install -g ./graphtrail-0.2.0.tgz` 한 줄이면 됩니다. 전역 설치가 싫다면 설치 없이 `node dist/cli.js <명령>` 으로도 같은 일을 합니다(예시의 `graphtrail` 을 `node dist/cli.js` 로 바꿔 실행하면 됩니다). `npm ci` 때 esbuild·@vscode/vsce-sign 설치 스크립트 경고가 보일 수 있으나 무시해도 됩니다(CLI 의 런타임 의존성은 `sql.js`, `@msgpack/msgpack` 두 개뿐입니다).
+릴리스 페이지에 `graphtrail-0.2.2.tgz` 가 올라와 있으면 `npm install -g ./graphtrail-0.2.2.tgz` 한 줄이면 됩니다. 전역 설치가 싫다면 설치 없이 `node dist/cli.js <명령>` 으로도 같은 일을 합니다(예시의 `graphtrail` 을 `node dist/cli.js` 로 바꿔 실행하면 됩니다). `npm ci` 때 esbuild·@vscode/vsce-sign 설치 스크립트 경고가 보일 수 있으나 무시해도 됩니다(CLI 의 런타임 의존성은 `sql.js`, `@msgpack/msgpack` 두 개뿐입니다).
 
 > **알려진 한계**: `npm install -g git+https://github.com/LeeGyeongPil/graphtrail.git` 처럼 git URL 로 **전역** 설치하면 npm 11.20.0 에서 실패했습니다(전역 폴더가 설치 후 지워지는 임시 클론으로의 심볼릭 링크가 되어 `graphtrail` 실행 파일이 끊어짐). 같은 git URL 을 프로젝트 로컬(`npm install git+https://...`)로 설치하거나 tarball 로 설치하면 동작합니다. npm 버전에 따라 다를 수 있습니다.
 
 ### VS Code 확장
 
 ```bash
-npm run vsix      # vscode/graphtrail-vscode-0.2.0.vsix 생성
-code --install-extension vscode/graphtrail-vscode-0.2.0.vsix
+npm run vsix      # vscode/graphtrail-vscode-0.2.2.vsix 생성
+code --install-extension vscode/graphtrail-vscode-0.2.2.vsix
 ```
 
 > **정직하게**: 확장은 `.vsix` 패키징, 매니페스트 검사, 타입 검사까지만 자동 테스트로 확인했습니다. **실제 VS Code 에서 설치해 열어 본 적은 없습니다.** 확장 호스트에서의 동작(커스텀 에디터 표시, 트리 뷰)은 검증되지 않았으니, 써 보고 문제가 있으면 이슈로 알려 주시기 바랍니다. 위 `code --install-extension` 명령도 직접 실행해 보지 못했습니다. 핵심 기능은 CLI 로 확인되어 있습니다.
@@ -221,6 +221,7 @@ flowchart LR
 |---|---|---|
 | `--thread 가 필요합니다. 이 데이터베이스에는 스레드가 3개 있습니다`(영어 출력 `--thread is required; this database has 3 threads`) | DB 에 스레드가 여러 개 | 안내된 목록에서 `--thread t1` 처럼 지정 |
 | `LangGraph 체크포인트 데이터베이스가 아닙니다`(영어 출력 `not a LangGraph checkpoint database`) | `checkpoints` 테이블이 없는 파일 | 올바른 DB 경로인지, `SqliteSaver` 로 만든 파일인지 확인 |
+| `이 데이터베이스에는 체크포인트가 없습니다.`(종료 코드 2) | 테이블은 있으나 저장된 체크포인트가 아직 없음 | `SqliteSaver` 로 그래프를 한 번 이상 실행했는지, DB 경로가 맞는지 확인 |
 | 노드 열이 `-` (또는 interrupted 스레드 마지막 행에 `agent, tools, approve` 처럼 여러 개) | 마지막 단계이거나 대기 노드를 알 수 없음. interrupt 로 멈춘 스레드는 추정 노드가 여러 개 보일 수 있음 | 정상입니다. 노드 이름은 저장되지 않고 추정만 합니다 |
 | 분기(fork)가 있는 스레드에서 일부 이력이 안 보임 | 가장 새 잎의 사슬만 보여 줌 | 경고가 출력됩니다. 분기 트리는 아직 미구현 |
 | 일부 값이 `delta_snapshot` 표식으로만 보임 | 델타 채널(msgpack 확장 타입 7)을 쓰는 그래프 | 값 재구성은 아직 미구현. 표식만 보입니다 |
