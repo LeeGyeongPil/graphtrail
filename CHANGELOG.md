@@ -5,6 +5,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [0.2.3]
+
+### Fixed
+
+- The "no checkpoints" error for the root graph now says "in the root graph (root)" instead of showing an empty namespace `""`.
+
 ## [0.2.2]
 
 ### Fixed
