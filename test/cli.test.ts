@@ -82,3 +82,29 @@ test("branch warning is printed once by timeline, show, diff and export", async 
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test("empty database (tables only) says there are no checkpoints", async () => {
+  const initSqlJs = require("sql.js");
+  const SQL = await initSqlJs();
+  const sdb = new SQL.Database();
+  sdb.run(`CREATE TABLE checkpoints (thread_id TEXT NOT NULL, checkpoint_ns TEXT NOT NULL DEFAULT '', checkpoint_id TEXT NOT NULL, parent_checkpoint_id TEXT, type TEXT, checkpoint BLOB, metadata BLOB, PRIMARY KEY (thread_id, checkpoint_ns, checkpoint_id))`);
+  sdb.run(`CREATE TABLE writes (thread_id TEXT NOT NULL, checkpoint_ns TEXT NOT NULL DEFAULT '', checkpoint_id TEXT NOT NULL, task_id TEXT NOT NULL, idx INTEGER NOT NULL, channel TEXT NOT NULL, type TEXT, value BLOB, PRIMARY KEY (thread_id, checkpoint_ns, checkpoint_id, task_id, idx))`);
+  const dir = mkdtempSync(join(tmpdir(), "graphtrail-empty-"));
+  try {
+    const file = join(dir, "empty.sqlite");
+    writeFileSync(file, Buffer.from(sdb.export()));
+    for (const command of ["timeline", "show", "diff", "export"]) {
+      const en = cli(command, file);
+      assert.equal(en.code, 2, command);
+      assert.match(en.stderr, /This database has no checkpoints\./, command);
+      assert.doesNotMatch(en.stderr, /0 threads/, command);
+      const ko = cliEnv({ GRAPHTRAIL_LANG: "ko" }, command, file);
+      assert.equal(ko.code, 2, command);
+      assert.match(ko.stderr, /이 데이터베이스에는 체크포인트가 없습니다\./, command);
+    }
+    const ko2 = cli("--lang", "ko", "timeline", file);
+    assert.match(ko2.stderr, /체크포인트가 없습니다/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
