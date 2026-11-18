@@ -51,6 +51,7 @@ const en = {
     notDbMissingColumn: "not a LangGraph checkpoint database (table {table} is missing column: {columns})",
     // ---- core: timeline ----
     noCheckpoints: 'no checkpoints for thread "{thread}" in namespace "{ns}"; run "graphtrail threads" to list them',
+    noCheckpointsRoot: 'no checkpoints for thread "{thread}" in the root graph {root}; run "graphtrail threads" to list them',
     noIdPrefix: 'no checkpoint id starts with "{id}" in thread "{thread}"',
     ambiguousId: 'checkpoint id prefix "{id}" is ambiguous ({n} matches); use more characters',
     noStep: 'thread "{thread}" has no step {step}; available steps: {steps}',
@@ -137,6 +138,7 @@ const ko = {
     notDbMissingTable: "LangGraph 체크포인트 데이터베이스가 아닙니다 (테이블이 없습니다: {table})",
     notDbMissingColumn: "LangGraph 체크포인트 데이터베이스가 아닙니다 (테이블 {table}에 열이 없습니다: {columns})",
     noCheckpoints: '네임스페이스 "{ns}"의 스레드 "{thread}"에 체크포인트가 없습니다. "graphtrail threads"로 목록을 확인하십시오',
+    noCheckpointsRoot: '루트 그래프 {root}의 스레드 "{thread}"에 체크포인트가 없습니다. "graphtrail threads"로 목록을 확인하십시오',
     noIdPrefix: '스레드 "{thread}"에 "{id}"(으)로 시작하는 체크포인트 ID가 없습니다',
     ambiguousId: '체크포인트 ID 접두사 "{id}"이(가) 모호합니다 ({n}개 일치). 더 많은 글자를 입력하십시오',
     noStep: '스레드 "{thread}"에 단계 {step}이(가) 없습니다. 사용할 수 있는 단계: {steps}',

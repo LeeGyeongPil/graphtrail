@@ -17,6 +17,7 @@ declare const en: {
     readonly notDbMissingTable: "not a LangGraph checkpoint database (missing table: {table})";
     readonly notDbMissingColumn: "not a LangGraph checkpoint database (table {table} is missing column: {columns})";
     readonly noCheckpoints: 'no checkpoints for thread "{thread}" in namespace "{ns}"; run "graphtrail threads" to list them';
+    readonly noCheckpointsRoot: 'no checkpoints for thread "{thread}" in the root graph {root}; run "graphtrail threads" to list them';
     readonly noIdPrefix: 'no checkpoint id starts with "{id}" in thread "{thread}"';
     readonly ambiguousId: 'checkpoint id prefix "{id}" is ambiguous ({n} matches); use more characters';
     readonly noStep: 'thread "{thread}" has no step {step}; available steps: {steps}';

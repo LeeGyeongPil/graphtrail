@@ -16,6 +16,8 @@ export declare class CheckpointDb {
     listThreads(): ThreadSummary[];
     /** Entries from the first checkpoint (step -1) to the latest, following parent_checkpoint_id. */
     timeline(threadId: string, ns?: string): TimelineEntry[];
+    /** "No checkpoints" message; the root namespace ("") is shown as the localized root label. */
+    private noCheckpointsMessage;
     /** Number of checkpoint rows of a thread/namespace (includes rows outside the main chain). */
     private count;
     /** Every checkpoint of the main chain, decoded, oldest first. */

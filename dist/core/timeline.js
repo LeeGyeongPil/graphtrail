@@ -76,9 +76,15 @@ export class CheckpointDb {
     /** Entries from the first checkpoint (step -1) to the latest, following parent_checkpoint_id. */
     timeline(threadId, ns = "") {
         if (this.chain(threadId, ns).length === 0) {
-            throw new NotFoundError(t(this.lang, "noCheckpoints", { thread: threadId, ns }));
+            throw new NotFoundError(this.noCheckpointsMessage(threadId, ns));
         }
         return this.entries(threadId, ns);
+    }
+    /** "No checkpoints" message; the root namespace ("") is shown as the localized root label. */
+    noCheckpointsMessage(threadId, ns) {
+        return ns === ""
+            ? t(this.lang, "noCheckpointsRoot", { thread: threadId, root: t(this.lang, "rootNs") })
+            : t(this.lang, "noCheckpoints", { thread: threadId, ns });
     }
     /** Number of checkpoint rows of a thread/namespace (includes rows outside the main chain). */
     count(threadId, ns) {
@@ -93,7 +99,7 @@ export class CheckpointDb {
     getCheckpoint(threadId, sel = {}, ns = "") {
         const chain = this.chain(threadId, ns);
         if (chain.length === 0) {
-            throw new NotFoundError(t(this.lang, "noCheckpoints", { thread: threadId, ns }));
+            throw new NotFoundError(this.noCheckpointsMessage(threadId, ns));
         }
         if (sel.id !== undefined) {
             const wanted = sel.id;
