@@ -3,7 +3,11 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.2.1]
+
+### Fixed
+
+- Fork warning ("thread has N branches") was never printed by the CLI because it is raised after the database is opened. Pending warnings are now flushed to stderr once, after the command runs.
 
 ## [0.2.0]
 
